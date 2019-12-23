@@ -7,6 +7,10 @@ pub use cgmath::EuclideanSpace;
 pub use cgmath::prelude::InnerSpace;
 pub use cgmath::prelude::VectorSpace;
 
+pub fn reflected(v: &Vec3, normal: &Vec3) -> Vec3 {
+    v - 2.0 * dot(*v, *normal) * normal
+}
+
 #[derive(Copy, Clone)]
 pub struct Interval<T: Copy + Clone> {
     pub min: T,

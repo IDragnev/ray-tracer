@@ -1,16 +1,19 @@
 use crate::math::{Point3, Interval, dot};
 use crate::{Hittable, Interaction, Ray};
+use crate::materials::Material;
 
 pub struct Sphere {
     pub center: Point3,
     pub radius: f32,
+    pub material: Box<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f32) -> Sphere {
+    pub fn new(center: Point3, radius: f32, material: Box<dyn Material>) -> Sphere {
         Sphere {
             center,
-            radius
+            radius,
+            material,
         }
     }
 }
@@ -36,6 +39,7 @@ impl Hittable for Sphere {
                 t,
                 hit_point,
                 normal,
+                material: self.material.as_ref(),
             })
         }
         else { 

@@ -3,6 +3,7 @@ mod ray;
 mod shapes;
 mod world;
 mod camera;
+mod materials;
 
 use rand::Rng;
 use math::{Point3, Vec3, vec3, Interval};
@@ -10,19 +11,29 @@ use ray::Ray;
 use shapes::Sphere;
 use world::World;
 use camera::Camera;
+use materials::Material;
 
 type Colour = Vec3;
 
-fn to_colour(ray: &Ray, world: &World) -> Colour {
-    use math::{EuclideanSpace, VectorSpace, InnerSpace};
+fn to_colour(ray: &Ray, world: &World, depth: i32) -> Colour {
+    use materials::Result;
+    use math::{InnerSpace, VectorSpace};
 
     let interval = Interval::new(0.001, std::f32::MAX).unwrap();
     if let Some(interaction) = world.hit(ray, &interval) {
-        let tangent_unit_sphere_center = interaction.hit_point + interaction.normal;
-        let target = tangent_unit_sphere_center + random_point_from_unit_sphere().to_vec();
-        let direction = target - interaction.hit_point;
-        let ray = Ray::new(interaction.hit_point, direction);
-        0.5 * to_colour(&ray, &world)
+        let scatter_result = interaction.material.scatter(ray, &interaction);
+        if depth < 50 && scatter_result.is_some() {
+            let Result{ scattered_ray, attenuation } = scatter_result.unwrap();
+            let colour = to_colour(&scattered_ray, world, depth + 1);
+            Colour::new(
+             attenuation[0] * colour[0],
+             attenuation[1] * colour[1],
+             attenuation[2] * colour[2]
+            )
+        }
+        else {
+            Colour::new(0.0, 0.0, 0.0)
+        }
     }
     else {
         let unit_direction = ray.direction.normalize();
@@ -33,27 +44,15 @@ fn to_colour(ray: &Ray, world: &World) -> Colour {
     }
 }
 
-fn random_point_from_unit_sphere() -> Point3 {
-    use math::{EuclideanSpace, InnerSpace};
-    loop {
-        let vec = 
-            vec3(random_float_from_0_to_1(), random_float_from_0_to_1(), random_float_from_0_to_1())
-            .map(|c| 2.0 * c)
-            .map(|c| c - 1.0);
-        if vec.magnitude() < 1.0 {
-            return EuclideanSpace::from_vec(vec);
-        }
-    }
-}
-
 fn random_float_from_0_to_1() -> f32 {
     rand::thread_rng().gen_range(0.0, 1.0)
 }
 
-pub struct Interaction {
+pub struct Interaction<'a> {
     pub t: f32,
     pub hit_point: Point3,
     pub normal: Vec3,
+    pub material: &'a dyn Material,
 }
 
 pub trait Hittable {
@@ -61,9 +60,13 @@ pub trait Hittable {
 }
 
 fn make_sample_world() -> World {
+    use materials::{Lambertian, Metal};
+
     let hittables: Vec<Box<dyn Hittable>> = vec![
-        Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)),
-        Box::new(Sphere::new(Point3::new(0.0,-100.5,-1.0), 100.0)),
+        Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(vec3(0.8, 0.3, 0.3))))),
+        Box::new(Sphere::new(Point3::new(0.0,-100.5,-1.0), 100.0, Box::new(Lambertian::new(vec3(0.8, 0.8, 0.0))))),
+        Box::new(Sphere::new(Point3::new(1.0, 0.0,-1.0), 0.5, Box::new(Metal::new(vec3(0.8, 0.6, 0.2), 0.3)))),
+        Box::new(Sphere::new(Point3::new(-1.0, 0.0,-1.0), 0.5, Box::new(Metal::new(vec3(0.8, 0.8, 0.8), 1.0)))),
     ];
     World::new(hittables)
 }
@@ -96,7 +99,7 @@ fn main() {
                 let u = (x as f32 + random_float_from_0_to_1()) / nx as f32;
                 let v = (y as f32 + random_float_from_0_to_1()) / ny as f32;
                 let ray = camera.make_ray(u, v);
-                colour += to_colour(&ray, &world);
+                colour += to_colour(&ray, &world, 0);
             }
             let colour = (colour / pixel_samples_count as f32).map(|c| c.sqrt());
             let red   = (255.99 * colour[0]) as i32;
