@@ -1,26 +1,12 @@
-use cgmath::vec3;
 use cgmath::prelude::InnerSpace;
 
-type Vec3 = cgmath::Vector3<f32>;
-type Point3 = cgmath::Point3<f32>;
+mod math;
+mod ray;
+mod shapes;
 
-struct Ray {
-    origin: Point3,
-    direction: Vec3,
-}
-
-impl Ray {
-    pub fn new(origin: Point3, direction: Vec3) -> Ray {
-        Ray {
-            origin,
-            direction,
-        }
-    }
-
-    pub fn at(&self, t: f32) -> Point3 {
-        self.origin + t * self.direction
-    }
-}
+use math::{Point3, Vec3, vec3};
+use ray::Ray;
+use shapes::Sphere;
 
 struct Colour {
     r: f32,
@@ -36,18 +22,6 @@ impl Colour {
             b,
         }
     }
-
-    fn red() -> Colour {
-        Colour::new(1.0, 0.0, 0.0)
-    }
-
-    fn green() -> Colour {
-        Colour::new(0.0, 1.0, 0.0)
-    }
-
-    fn blue() -> Colour {
-        Colour::new(0.0, 0.0, 1.0)
-    }
 }
 
 impl From<Vec3> for Colour {
@@ -56,24 +30,13 @@ impl From<Vec3> for Colour {
     }
 }
 
-struct Sphere {
-    center: Point3,
-    radius: f32,
-}
-
-impl Sphere {
-    fn new(center: Point3, radius: f32) -> Sphere {
-        Sphere {
-            center,
-            radius
-        }
-    }
-}
-
 fn to_colour(ray: &Ray) -> Colour {
     let sphere = Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5);
-    if hits_sphere(&sphere, ray) {
-        return Colour::red();
+    if let Some(t) = hit_point(&sphere, ray) {
+        let normal = (ray.at(t) - sphere.center).normalize();
+        return normal.map(|c| c + 1.0)
+                     .map(|c| c * 0.5)
+                     .into();
     }
 
     let unit_direction = ray.direction.normalize();
@@ -81,13 +44,19 @@ fn to_colour(ray: &Ray) -> Colour {
     Colour::from((1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0))
 }
 
-fn hits_sphere(sphere: &Sphere, ray: &Ray) -> bool {
+fn hit_point(sphere: &Sphere, ray: &Ray) -> Option<f32> {
     let oc = ray.origin - sphere.center;
     let a = ray.direction.dot(ray.direction);
     let b = 2.0 * ray.direction.dot(oc);
     let c = oc.dot(oc) - sphere.radius * sphere.radius;
     let discriminant = b * b - 4.0 * a * c;
-    discriminant > 0.0
+
+    if discriminant < 0.0 {
+        None
+    }
+    else {
+        Some((-b - discriminant.sqrt()) / (2.0 * a))
+    }
 }
 
 fn main() {
