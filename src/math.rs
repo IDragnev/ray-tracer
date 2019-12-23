@@ -3,6 +3,9 @@ pub type Point3 = cgmath::Point3<f32>;
 
 pub use cgmath::vec3;
 pub use cgmath::dot;
+pub use cgmath::EuclideanSpace;
+pub use cgmath::prelude::InnerSpace;
+pub use cgmath::prelude::VectorSpace;
 
 #[derive(Copy, Clone)]
 pub struct Interval<T: Copy + Clone> {
