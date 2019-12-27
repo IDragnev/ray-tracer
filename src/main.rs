@@ -6,11 +6,22 @@ mod materials;
 mod core;
 
 use rand::Rng;
-use math::{Point3, Vec3, vec3, Interval};
-use crate::core::{Ray, Interaction};
 use shapes::Sphere;
+use math::{
+    Point3,
+    Vec3,
+    vec3, 
+    Interval,
+};
+use crate::core::{
+    Ray,
+    Interaction,
+};
 use world::World;
-use camera::Camera;
+use camera::{
+    CameraAxis,
+    Camera,
+};
 
 type Colour = Vec3;
 
@@ -64,25 +75,23 @@ fn make_sample_world() -> World {
     World::new(hittables)
 }
 
-fn make_sample_camera() -> Camera {
-    let origin = Point3::new(0.0, 0.0, 0.0);
-    let lower_left_corner = Point3::new(-2.0, -1.0, -1.0);
-    let horizontal = vec3(4.0, 0.0, 0.0);
-    let vertical = vec3(0.0, 2.0, 0.0);
-    Camera::new(
-        origin,
-        lower_left_corner,
-        horizontal,
-        vertical
-    )
+fn make_sample_camera(aspect: f32) -> Camera {
+    let axis = CameraAxis { 
+        look_from: Point3::new(-2.0, 2.0, 1.0),
+        look_at: Point3::new(0.0, 0.0, -1.0),
+    };
+    let vector_up = vec3(0.0, 1.0, 0.0);
+    let deg_top_to_bottom = 90.0;
+    Camera::new(axis, vector_up, deg_top_to_bottom, aspect)
 }
 
 fn main() {
     let nx = 200;
     let ny = 100;
     let pixel_samples_count = 100;
+    let aspect = nx as f32 / ny as f32;
     let world = make_sample_world();
-    let camera = make_sample_camera();
+    let camera = make_sample_camera(aspect);
     
     println!("P3\n{} {}\n255", nx, ny);
     for y in (0..ny).rev() {
