@@ -1,5 +1,5 @@
 use crate::math::{Point3, Interval, dot};
-use crate::{Hittable, Interaction, Ray};
+use crate::{Hittable, core::Interaction, Ray};
 use crate::materials::Material;
 
 pub struct Sphere {

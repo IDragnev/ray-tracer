@@ -1,17 +1,16 @@
 mod math;
-mod ray;
 mod shapes;
 mod world;
 mod camera;
 mod materials;
+mod core;
 
 use rand::Rng;
 use math::{Point3, Vec3, vec3, Interval};
-use ray::Ray;
+use crate::core::{Ray, Interaction};
 use shapes::Sphere;
 use world::World;
 use camera::Camera;
-use materials::Material;
 
 type Colour = Vec3;
 
@@ -46,13 +45,6 @@ fn to_colour(ray: &Ray, world: &World, depth: i32) -> Colour {
 
 fn random_float_from_0_to_1() -> f32 {
     rand::thread_rng().gen_range(0.0, 1.0)
-}
-
-pub struct Interaction<'a> {
-    pub t: f32,
-    pub hit_point: Point3,
-    pub normal: Vec3,
-    pub material: &'a dyn Material,
 }
 
 pub trait Hittable {

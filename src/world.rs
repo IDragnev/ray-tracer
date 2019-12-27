@@ -1,7 +1,7 @@
 use crate::Hittable;
 use crate::Ray;
 use crate::math::Interval;
-use crate::Interaction;
+use crate::core::Interaction;
 
 pub struct World {
     hittables: Vec<Box<dyn Hittable>>,

@@ -12,7 +12,7 @@ pub fn reflected(v: &Vec3, normal: &Vec3) -> Vec3 {
 }
 
 #[derive(Copy, Clone)]
-pub struct Interval<T: Copy + Clone> {
+pub struct Interval<T: Copy + Clone + PartialOrd> {
     pub min: T,
     pub max: T,
 }

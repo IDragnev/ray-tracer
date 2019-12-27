@@ -1,5 +1,5 @@
-use crate::Interaction;
-use crate::ray::Ray;
+use crate::core::Interaction;
+use crate::core::Ray;
 use crate::math::{Vec3, Point3, vec3, EuclideanSpace, InnerSpace};
 
 pub struct Result {
@@ -26,8 +26,8 @@ impl Lambertian {
 impl Material for Lambertian {
     fn scatter(&self, _: &Ray, interaction: &Interaction) -> Option<Result> {
         let tangent_unit_sphere_center = interaction.hit_point + interaction.normal;
-        let target = tangent_unit_sphere_center + random_point_from_unit_sphere().to_vec();
-        let direction = target - interaction.hit_point;
+        let target_point = tangent_unit_sphere_center + random_point_from_unit_sphere().to_vec();
+        let direction = target_point - interaction.hit_point;
         let scattered_ray = Ray::new(interaction.hit_point, direction);
         let attenuation = self.albedo;
         Some(Result{
