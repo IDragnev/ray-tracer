@@ -76,13 +76,16 @@ fn make_sample_world() -> World {
 }
 
 fn make_sample_camera(aspect: f32) -> Camera {
+    use math::InnerSpace;
     let axis = CameraAxis { 
-        look_from: Point3::new(-2.0, 2.0, 1.0),
+        look_from: Point3::new(3.0, 3.0, 2.0),
         look_at: Point3::new(0.0, 0.0, -1.0),
     };
     let vector_up = vec3(0.0, 1.0, 0.0);
-    let deg_top_to_bottom = 90.0;
-    Camera::new(axis, vector_up, deg_top_to_bottom, aspect)
+    let aperture = 2.0;
+    let dist_to_focus = (axis.look_from - axis.look_at).magnitude();
+    let fov = camera::FieldOfView::from_degrees(20.0);
+    Camera::new(axis, vector_up, fov, aspect, aperture, dist_to_focus)
 }
 
 fn main() {
