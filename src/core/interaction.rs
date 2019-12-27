@@ -1,9 +1,9 @@
 use crate::materials::Material;
-use crate::math::{Point3, Vec3};
+use crate::math;
 
 pub struct Interaction<'a> {
     pub t: f32,
-    pub hit_point: Point3,
-    pub normal: Vec3,
+    pub hit_point: math::Point3,
+    pub normal: math::Vec3,
     pub material: &'a dyn Material,
 }

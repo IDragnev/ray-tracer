@@ -52,13 +52,14 @@ pub trait Hittable {
 }
 
 fn make_sample_world() -> World {
-    use materials::{Lambertian, Metal};
+    use materials::{Lambertian, Metal, Dielectric};
 
     let hittables: Vec<Box<dyn Hittable>> = vec![
-        Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(vec3(0.8, 0.3, 0.3))))),
+        Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(vec3(0.1, 0.2, 0.5))))),
         Box::new(Sphere::new(Point3::new(0.0,-100.5,-1.0), 100.0, Box::new(Lambertian::new(vec3(0.8, 0.8, 0.0))))),
         Box::new(Sphere::new(Point3::new(1.0, 0.0,-1.0), 0.5, Box::new(Metal::new(vec3(0.8, 0.6, 0.2), 0.3)))),
-        Box::new(Sphere::new(Point3::new(-1.0, 0.0,-1.0), 0.5, Box::new(Metal::new(vec3(0.8, 0.8, 0.8), 1.0)))),
+        Box::new(Sphere::new(Point3::new(-1.0, 0.0,-1.0), 0.5, Box::new(Dielectric::new(1.5)))),
+        Box::new(Sphere::new(Point3::new(-1.0, 0.0,-1.0), -0.45, Box::new(Dielectric::new(1.5)))),
     ];
     World::new(hittables)
 }

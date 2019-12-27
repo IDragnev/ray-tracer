@@ -1,16 +1,3 @@
-pub type Vec3 = cgmath::Vector3<f32>;
-pub type Point3 = cgmath::Point3<f32>;
-
-pub use cgmath::vec3;
-pub use cgmath::dot;
-pub use cgmath::EuclideanSpace;
-pub use cgmath::prelude::InnerSpace;
-pub use cgmath::prelude::VectorSpace;
-
-pub fn reflected(v: &Vec3, normal: &Vec3) -> Vec3 {
-    v - 2.0 * dot(*v, *normal) * normal
-}
-
 #[derive(Copy, Clone)]
 pub struct Interval<T: Copy + Clone + PartialOrd> {
     pub min: T,
