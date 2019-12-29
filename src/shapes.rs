@@ -1,5 +1,13 @@
-use crate::math::{Point3, Interval, dot};
-use crate::{Hittable, core::Interaction, Ray};
+use crate::math::{
+    self,
+    Point3, 
+    Interval,
+};
+use crate::core::{
+    Hittable, 
+    Interaction,
+    Ray,
+};
 use crate::materials::Material;
 
 pub struct Sphere {
@@ -20,6 +28,7 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<Interaction> {
+        use math::dot;
         let oc = ray.origin - self.center;
         let a = dot(ray.direction, ray.direction);
         let b = dot(ray.direction, oc);

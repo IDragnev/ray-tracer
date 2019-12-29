@@ -20,8 +20,4 @@ impl<T: Copy + Clone + PartialOrd> Interval<T> {
     pub fn with_max(&self, max: T) -> Option<Self> {
         Interval::new(self.min, max)
     }
-
-    pub fn with_min(&self, min: T) -> Option<Self> {
-        Interval::new(min, self.max)
-    }
 }

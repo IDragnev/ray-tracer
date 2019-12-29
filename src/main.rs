@@ -13,9 +13,10 @@ use math::{
     vec3, 
     Interval,
 };
+
 use crate::core::{
-    Ray,
-    Interaction,
+    Ray, 
+    Hittable,
 };
 use world::World;
 use camera::{
@@ -56,10 +57,6 @@ fn to_colour(ray: &Ray, world: &World, depth: i32) -> Colour {
 
 fn random_float_from_0_to_1() -> f32 {
     rand::thread_rng().gen_range(0.0, 1.0)
-}
-
-pub trait Hittable {
-    fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<Interaction>;
 }
 
 fn make_sample_world() -> World {

@@ -1,7 +1,9 @@
-use crate::Hittable;
-use crate::Ray;
 use crate::math::Interval;
-use crate::core::Interaction;
+use crate::core::{
+    Ray,
+    Interaction,
+    Hittable,
+};
 
 pub struct World {
     hittables: Vec<Box<dyn Hittable>>,
@@ -24,8 +26,7 @@ impl Hittable for World {
                 interval = interval.with_max(interaction.t).expect("invalid interval");
                 result = Some(interaction);
             }
-        }
-        
+        }       
         result
     }
 }
