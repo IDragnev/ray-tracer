@@ -10,14 +10,18 @@ pub struct CameraAxis {
     pub look_at: Point3,
 }
 
+struct CameraOrientation {
+    pub u: Vec3,
+    pub v: Vec3,
+    pub w: Vec3,
+}
+
 pub struct Camera {
     origin: Point3,
     lower_left_corner: Point3,
     horizontal: Vec3,
     vertical: Vec3,
-    u: Vec3,
-    v: Vec3,
-    w: Vec3,
+    orientation: CameraOrientation,
     lens_radius: f32,
 }
 
@@ -46,28 +50,27 @@ impl Camera {
         let w = (axis.look_from - axis.look_at).normalize();
         let u = vector_up.cross(w).normalize();
         let v = w.cross(u);
+        let orientation = CameraOrientation{ u, v, w };
         let lower_left_corner = origin
-            - half_width  * focus_dist * u
-            - half_height * focus_dist * v
-            - focus_dist * w;
+            - half_width  * focus_dist * orientation.u
+            - half_height * focus_dist * orientation.v
+            - focus_dist * orientation.w;
         Camera {
             origin,
             lower_left_corner,
-            horizontal: 2.0 * focus_dist * u * half_width,
-            vertical: 2.0 * focus_dist * v * half_height,
+            horizontal: 2.0 * half_width * focus_dist * orientation.u,
+            vertical: 2.0 * half_height * focus_dist * orientation.v,
             lens_radius: aperture / 2.0,
-            u,
-            v,
-            w,
+            orientation,
         }
     }
     
-    pub fn make_ray(&self, s: f32, t: f32) -> Ray {
-        use math::EuclideanSpace;
-        let rd = self.lens_radius * random_point_in_unit_disk().to_vec();
-        let offset = self.u * rd.x + self.v * rd.y;
-        let direction = self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset;
-        Ray::new(self.origin + offset, direction)
+    pub fn make_ray(&self, u: f32, v: f32) -> Ray {
+        let point = self.lens_radius * random_point_in_unit_disk();
+        let offset = point.x * self.orientation.u + point.y * self.orientation.v;
+        let point_in_lens = self.origin + offset;
+        let direction = self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin - offset;
+        Ray::new(point_in_lens, direction)
     }
 }
 
