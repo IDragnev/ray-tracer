@@ -13,6 +13,7 @@ use math::{
     vec3, 
     Interval,
 };
+use materials::Material;
 
 use crate::core::{
     Ray, 
@@ -59,23 +60,54 @@ fn random_float_from_0_to_1() -> f32 {
     rand::thread_rng().gen_range(0.0, 1.0)
 }
 
-fn make_sample_world() -> World {
+fn random_scene() -> World {
     use materials::{Lambertian, Metal, Dielectric};
-
-    let hittables: Vec<Box<dyn Hittable>> = vec![
-        Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, Box::new(Lambertian::new(vec3(0.1, 0.2, 0.5))))),
-        Box::new(Sphere::new(Point3::new(0.0,-100.5,-1.0), 100.0, Box::new(Lambertian::new(vec3(0.8, 0.8, 0.0))))),
-        Box::new(Sphere::new(Point3::new(1.0, 0.0,-1.0), 0.5, Box::new(Metal::new(vec3(0.8, 0.6, 0.2), 0.3)))),
-        Box::new(Sphere::new(Point3::new(-1.0, 0.0,-1.0), 0.5, Box::new(Dielectric::new(1.5)))),
-        Box::new(Sphere::new(Point3::new(-1.0, 0.0,-1.0), -0.45, Box::new(Dielectric::new(1.5)))),
-    ];
+    use math::{EuclideanSpace, InnerSpace};
+    
+    let mut hittables: Vec<Box<dyn Hittable>> = Vec::with_capacity(512);
+    hittables.push(Box::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Box::new(Lambertian::new(vec3(0.5, 0.5, 0.5))))));
+    
+    for a in -11..11 {
+        for b in -11..11 {
+            let center = Point3::new(a as f32 + 0.9*random_float_from_0_to_1(), 0.2, b as f32 + 0.9*random_float_from_0_to_1());
+            if (center.to_vec() - vec3(4.0, 0.2, 0.0)).magnitude() > 0.9 {
+                let sphere = Sphere::new(center, 0.2, random_material());
+                hittables.push(Box::new(sphere));
+            }
+        }
+    }
+    
+    hittables.push(Box::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, Box::new(Dielectric::new(1.5)))));
+    hittables.push(Box::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Box::new(Lambertian::new(vec3(0.4, 0.2, 0.1))))));
+    hittables.push(Box::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Box::new(Metal::new(vec3(0.7, 0.6, 0.5), 0.0)))));
+    
     World::new(hittables)
 }
+
+fn random_material() -> Box<dyn Material> {
+    use materials::{Lambertian, Metal, Dielectric};
+    let rf01 = || random_float_from_0_to_1();
+    let randf = rf01();
+    if randf < 0.8 {  // diffuse
+        let abledo = vec3(rf01()*rf01(), rf01()*rf01(), rf01()*rf01());
+        Box::new(Lambertian::new(abledo))
+    }
+    else if randf < 0.95 { // metal
+        let albedo = vec3(rf01(), rf01(), rf01()).map(|c| c + 1.0).map(|c| 5.0*c);
+        let fuzz = 0.5*rf01();
+        Box::new(Metal::new(albedo, fuzz))
+    }
+    else {  // glass
+        let refractive_index = 1.5;
+        Box::new(Dielectric::new(refractive_index))
+    }
+}
+
 
 fn make_sample_camera(aspect: f32) -> Camera {
     use math::InnerSpace;
     let axis = CameraAxis { 
-        look_from: Point3::new(3.0, 3.0, 2.0),
+        look_from: Point3::new(15.0, 5.0, 8.0),
         look_at: Point3::new(0.0, 0.0, -1.0),
     };
     let vector_up = vec3(0.0, 1.0, 0.0);
