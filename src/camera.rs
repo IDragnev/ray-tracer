@@ -65,12 +65,12 @@ impl Camera {
         }
     }
     
-    pub fn make_ray(&self, u: f32, v: f32) -> Ray {
+    pub fn make_ray(&self, (u, v): (f32, f32), time: f32) -> Ray {
         let point = self.lens_radius * random_point_in_unit_disk();
         let offset = point.x * self.orientation.u + point.y * self.orientation.v;
         let point_in_lens = self.origin + offset;
         let direction = self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin - offset;
-        Ray::new(point_in_lens, direction)
+        Ray::new(point_in_lens, direction, time)
     }
 }
 

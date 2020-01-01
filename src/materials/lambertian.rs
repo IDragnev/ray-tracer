@@ -22,7 +22,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _: &Ray, interaction: &Interaction) -> Option<Result> {
+    fn scatter(&self, ray: &Ray, interaction: &Interaction) -> Option<Result> {
         use materials::random_point_from_unit_sphere;
         use math::EuclideanSpace;
         let tangent_unit_sphere_center = interaction.hit_point + interaction.normal;
@@ -30,7 +30,7 @@ impl Material for Lambertian {
         let direction = target_point - interaction.hit_point;
         Some(Result{
             attenuation: self.albedo,
-            scattered_ray: Ray::new(interaction.hit_point, direction),
+            scattered_ray: Ray::new(interaction.hit_point, direction, ray.time),
         })
     }
 }

@@ -50,7 +50,7 @@ impl Material for Dielectric {
         };
 
         Some(Result{
-            scattered_ray: Ray::new(interaction.hit_point, direction),
+            scattered_ray: Ray::new(interaction.hit_point, direction, ray.time),
             attenuation: vec3(1.0, 1.0, 1.0),
         })
     }

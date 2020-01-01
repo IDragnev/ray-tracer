@@ -33,7 +33,7 @@ impl Material for Metal {
         if is_angle_acute {
             let direction = reflected_dir + self.fuzz * random_point_from_unit_sphere().to_vec();
             Some(Result{
-                scattered_ray: Ray::new(interaction.hit_point, direction),
+                scattered_ray: Ray::new(interaction.hit_point, direction, ray.time),
                 attenuation: self.albedo,
             })
         }

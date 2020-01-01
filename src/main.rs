@@ -6,14 +6,16 @@ mod materials;
 mod core;
 
 use rand::Rng;
-use shapes::Sphere;
+use shapes::{
+    Sphere,
+    MovingSphere,
+};
 use math::{
     Point3,
     Vec3,
     vec3, 
     Interval,
 };
-use materials::Material;
 
 use crate::core::{
     Ray, 
@@ -67,12 +69,11 @@ fn random_scene() -> World {
     let mut hittables: Vec<Box<dyn Hittable>> = Vec::with_capacity(512);
     hittables.push(Box::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Box::new(Lambertian::new(vec3(0.5, 0.5, 0.5))))));
     
-    for a in -11..11 {
-        for b in -11..11 {
+    for a in -10..10 {
+        for b in -10..10 {
             let center = Point3::new(a as f32 + 0.9*random_float_from_0_to_1(), 0.2, b as f32 + 0.9*random_float_from_0_to_1());
             if (center.to_vec() - vec3(4.0, 0.2, 0.0)).magnitude() > 0.9 {
-                let sphere = Sphere::new(center, 0.2, random_material());
-                hittables.push(Box::new(sphere));
+                hittables.push(random_sphere(center));
             }
         }
     }
@@ -84,35 +85,44 @@ fn random_scene() -> World {
     World::new(hittables)
 }
 
-fn random_material() -> Box<dyn Material> {
+fn random_sphere(center: Point3) -> Box<dyn Hittable> {
     use materials::{Lambertian, Metal, Dielectric};
+    use shapes::moving_sphere::{Centers, MovementInterval};
+
     let rf01 = || random_float_from_0_to_1();
     let randf = rf01();
+    let radius = 0.2;
     if randf < 0.8 {  // diffuse
+        let centers = Centers {
+            starting: center,
+            ending: center + vec3(0.0, 0.5*rf01(), 0.0),
+        };
+        let interval = MovementInterval{ min: 0.0, max: 1.0 };
         let abledo = vec3(rf01()*rf01(), rf01()*rf01(), rf01()*rf01());
-        Box::new(Lambertian::new(abledo))
+        let material = Box::new(Lambertian::new(abledo));
+        Box::new(MovingSphere::new(centers, radius, interval, material))
     }
     else if randf < 0.95 { // metal
         let albedo = vec3(rf01(), rf01(), rf01()).map(|c| c + 1.0).map(|c| 5.0*c);
         let fuzz = 0.5*rf01();
-        Box::new(Metal::new(albedo, fuzz))
+        let material = Box::new(Metal::new(albedo, fuzz));
+        Box::new(Sphere::new(center, radius, material))
     }
     else {  // glass
         let refractive_index = 1.5;
-        Box::new(Dielectric::new(refractive_index))
+        let material = Box::new(Dielectric::new(refractive_index));
+        Box::new(Sphere::new(center, radius, material))
     }
 }
 
-
 fn make_sample_camera(aspect: f32) -> Camera {
-    use math::InnerSpace;
     let axis = CameraAxis { 
-        look_from: Point3::new(15.0, 5.0, 8.0),
-        look_at: Point3::new(0.0, 0.0, -1.0),
+        look_from: Point3::new(13.0, 2.0, 3.0),
+        look_at: Point3::new(0.0, 0.0, 0.0),
     };
     let vector_up = vec3(0.0, 1.0, 0.0);
-    let aperture = 2.0;
-    let dist_to_focus = (axis.look_from - axis.look_at).magnitude();
+    let aperture = 0.0;
+    let dist_to_focus = 10.0;
     let fov = camera::FieldOfView::from_degrees(20.0);
     Camera::new(axis, vector_up, fov, aspect, aperture, dist_to_focus)
 }
@@ -122,9 +132,9 @@ fn main() {
     let ny = 100;
     let pixel_samples_count = 100;
     let aspect = nx as f32 / ny as f32;
-    let world = make_sample_world();
+    let world = random_scene();
     let camera = make_sample_camera(aspect);
-    
+    let (tmin, tmax) = (0.0, 1.0);
     println!("P3\n{} {}\n255", nx, ny);
     for y in (0..ny).rev() {
         for x in 0..nx {
@@ -132,7 +142,8 @@ fn main() {
             for _ in 0..pixel_samples_count {
                 let u = (x as f32 + random_float_from_0_to_1()) / nx as f32;
                 let v = (y as f32 + random_float_from_0_to_1()) / ny as f32;
-                let ray = camera.make_ray(u, v);
+                let time = tmin + random_float_from_0_to_1()*(tmax - tmin);
+                let ray = camera.make_ray((u, v), time);
                 colour += to_colour(&ray, &world, 0);
             }
             let colour = (colour / pixel_samples_count as f32).map(|c| c.sqrt());

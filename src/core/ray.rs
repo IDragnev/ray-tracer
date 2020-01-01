@@ -6,13 +6,15 @@ use crate::math::{
 pub struct Ray {
     pub origin: Point3,
     pub direction: Vec3,
+    pub time: f32,
 }
 
 impl Ray {
-    pub fn new(origin: Point3, direction: Vec3) -> Ray {
+    pub fn new(origin: Point3, direction: Vec3, time: f32) -> Ray {
         Ray {
             origin,
             direction,
+            time,
         }
     }
 
