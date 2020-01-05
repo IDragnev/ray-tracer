@@ -9,6 +9,7 @@ use crate::core::{
     Ray,
 };
 use crate::materials::Material;
+use crate::aabb::AABB;
 
 pub struct Sphere {
     pub center: Point3,
@@ -40,7 +41,7 @@ impl Hittable for Sphere {
 
         let d_sqrt = discriminant.sqrt();
         let solutions = [(-b - d_sqrt) / a, (-b + d_sqrt) / a];
-        if let Some(x) = solutions.iter().find(|&&x| hit_interval.min < x && x < hit_interval.max) {
+        if let Some(x) = solutions.iter().find(|&&x| hit_interval.min() < x && x < hit_interval.max()) {
             let t = *x;
             let hit_point = ray.at(t);
             let normal = (hit_point - self.center) / self.radius;
@@ -54,5 +55,14 @@ impl Hittable for Sphere {
         else { 
             None
         }
+    }
+
+    fn bounding_box(&self, _: &Interval<f32>) -> Option<AABB> {
+        let v = math::vec3(self.radius, self.radius, self.radius);
+        let b = AABB {
+            lower_end: self.center - v,
+            upper_end: self.center + v,
+        };
+        Some(b)
     }
 }

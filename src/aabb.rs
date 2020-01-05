@@ -1,0 +1,52 @@
+use crate::math::{
+    Point3,
+    Interval,
+};
+use crate::core::{
+    Ray,
+};
+
+#[derive(Copy, Clone)]
+pub struct AABB {
+    pub lower_end: Point3,
+    pub upper_end: Point3,
+}
+
+impl AABB {
+    pub fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> bool {
+        let mut common_interval = *hit_interval;
+        for d in 0..3 {
+            let inv_dir = 1.0 / ray.direction[d];
+            let slab = {
+                let t0 = (self.lower_end[d] - ray.origin[d]) * inv_dir;
+                let t1 = (self.upper_end[d] - ray.origin[d]) * inv_dir;
+                if inv_dir < 0.0 { Interval::new(t1, t0) } else { Interval::new(t0, t1) }
+            };
+            if slab.is_none() { return false; } //in case (t0, t1) is (-inf, -inf) or (inf, inf)
+            if let Some(interval) = common_interval.overlap_with(&slab.unwrap()) {
+                common_interval = interval;
+            } 
+            else {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+pub fn surrounding_box(a: &AABB, b: &AABB) -> AABB {
+    let ffmin = |u, v| if u < v { u } else { v };
+    let ffmax = |u, v| if u > v { u } else { v };
+    let lower_end = Point3::new( 
+        ffmin(a.lower_end.x, b.lower_end.x),
+        ffmin(a.lower_end.y, b.lower_end.y),
+        ffmin(a.lower_end.z, b.lower_end.z));
+    let upper_end = Point3::new( 
+        ffmax(a.upper_end.x, b.upper_end.x),
+        ffmax(a.upper_end.y, b.upper_end.y),
+        ffmax(a.upper_end.z, b.upper_end.z));
+    AABB {
+        lower_end,
+        upper_end,
+    }
+}

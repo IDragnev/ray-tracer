@@ -9,26 +9,28 @@ use crate::core::{
     Ray,
 };
 use crate::materials::Material;
+use crate::aabb::{
+    self,
+    AABB,
+};
 
 pub struct Centers {
     pub starting: Point3,
     pub ending: Point3,
 }
 
-pub type MovementInterval = Interval<f32>;
-
 pub struct MovingSphere {
-    movement_interval: MovementInterval,
+    movement_time_interval: Interval<f32>,
     centers: Centers,
     pub radius: f32,
     pub material: Box<dyn Material>,
 }
 
 impl MovingSphere {
-    pub fn new(centers: Centers, radius: f32, movement_interval: MovementInterval, material: Box<dyn Material>) -> MovingSphere {
+    pub fn new(centers: Centers, radius: f32, movement_time_interval: Interval<f32>, material: Box<dyn Material>) -> MovingSphere {
         MovingSphere {
             centers,
-            movement_interval,
+            movement_time_interval,
             radius,
             material,
         }
@@ -36,7 +38,7 @@ impl MovingSphere {
 
     pub fn center_at(&self, time: f32) -> Point3 {
         let Centers{starting, ending} = self.centers;
-        let MovementInterval{min: tmin, max: tmax} = self.movement_interval; 
+        let (tmin, tmax) = (self.movement_time_interval.min(), self.movement_time_interval.max()); 
         if time <= tmin {
             starting
         }
@@ -64,7 +66,7 @@ impl Hittable for MovingSphere {
 
         let d_sqrt = discriminant.sqrt();
         let solutions = [(-b - d_sqrt) / a, (-b + d_sqrt) / a];
-        if let Some(x) = solutions.iter().find(|&&x| hit_interval.min < x && x < hit_interval.max) {
+        if let Some(x) = solutions.iter().find(|&&x| hit_interval.min() < x && x < hit_interval.max()) {
             let t = *x;
             let hit_point = ray.at(t);
             let normal = (hit_point - center) / self.radius;
@@ -78,5 +80,20 @@ impl Hittable for MovingSphere {
         else { 
             None
         }
+    }
+
+    fn bounding_box(&self, time_interval: &Interval<f32>) -> Option<AABB> {
+        let v = math::vec3(self.radius, self.radius, self.radius);
+        let center0 = self.center_at(time_interval.min());
+        let center1 = self.center_at(time_interval.max());
+        let box0 = AABB {
+            lower_end: center0 - v,
+            upper_end: center0 + v
+        };
+        let box1 = AABB {
+            lower_end: center1 - v,
+            upper_end: center1 + v,
+        };
+        Some(aabb::surrounding_box(&box0, &box1))
     }
 }

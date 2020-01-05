@@ -4,6 +4,10 @@ use crate::core::{
     Interaction,
     Hittable,
 };
+use crate::aabb::{
+    self,
+    AABB,
+};
 
 pub struct World {
     hittables: Vec<Box<dyn Hittable>>,
@@ -28,5 +32,15 @@ impl Hittable for World {
             }
         }       
         result
+    }
+
+    fn bounding_box(&self, time_interval: &Interval<f32>) -> Option<AABB> {
+        let mut result = self.hittables.get(0)?
+                         .bounding_box(time_interval)?;
+        for hittable in &self.hittables[1..] {
+            let b = hittable.bounding_box(time_interval)?;
+            result = aabb::surrounding_box(&result, &b);
+        }
+        Some(result)
     }
 }

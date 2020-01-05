@@ -5,6 +5,7 @@ mod camera;
 mod materials;
 mod core;
 mod aabb;
+mod bvh;
 
 use rand::Rng;
 use shapes::{
@@ -17,7 +18,6 @@ use math::{
     vec3, 
     Interval,
 };
-
 use crate::core::{
     Ray, 
     Hittable,
@@ -88,7 +88,7 @@ fn random_scene() -> World {
 
 fn random_sphere(center: Point3) -> Box<dyn Hittable> {
     use materials::{Lambertian, Metal, Dielectric};
-    use shapes::moving_sphere::{Centers, MovementInterval};
+    use shapes::moving_sphere::Centers;
 
     let rf01 = || random_float_from_0_to_1();
     let randf = rf01();
@@ -98,10 +98,10 @@ fn random_sphere(center: Point3) -> Box<dyn Hittable> {
             starting: center,
             ending: center + vec3(0.0, 0.5*rf01(), 0.0),
         };
-        let interval = MovementInterval{ min: 0.0, max: 1.0 };
+        let movement_time_interval = Interval::new(0.0, 1.0).unwrap();
         let abledo = vec3(rf01()*rf01(), rf01()*rf01(), rf01()*rf01());
         let material = Box::new(Lambertian::new(abledo));
-        Box::new(MovingSphere::new(centers, radius, interval, material))
+        Box::new(MovingSphere::new(centers, radius, movement_time_interval, material))
     }
     else if randf < 0.95 { // metal
         let albedo = vec3(rf01(), rf01(), rf01()).map(|c| c + 1.0).map(|c| 0.5*c);
