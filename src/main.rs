@@ -4,6 +4,7 @@ mod world;
 mod camera;
 mod materials;
 mod core;
+mod aabb;
 
 use rand::Rng;
 use shapes::{
@@ -103,7 +104,7 @@ fn random_sphere(center: Point3) -> Box<dyn Hittable> {
         Box::new(MovingSphere::new(centers, radius, interval, material))
     }
     else if randf < 0.95 { // metal
-        let albedo = vec3(rf01(), rf01(), rf01()).map(|c| c + 1.0).map(|c| 5.0*c);
+        let albedo = vec3(rf01(), rf01(), rf01()).map(|c| c + 1.0).map(|c| 0.5*c);
         let fuzz = 0.5*rf01();
         let material = Box::new(Metal::new(albedo, fuzz));
         Box::new(Sphere::new(center, radius, material))
