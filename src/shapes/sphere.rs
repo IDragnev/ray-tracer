@@ -60,8 +60,8 @@ impl Hittable for Sphere {
     fn bounding_box(&self, _: &Interval<f32>) -> Option<AABB> {
         let v = math::vec3(self.radius, self.radius, self.radius);
         let b = AABB {
-            lower_end: self.center - v,
-            upper_end: self.center + v,
+            min: self.center - v,
+            max: self.center + v,
         };
         Some(b)
     }

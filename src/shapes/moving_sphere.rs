@@ -87,12 +87,12 @@ impl Hittable for MovingSphere {
         let center0 = self.center_at(time_interval.min());
         let center1 = self.center_at(time_interval.max());
         let box0 = AABB {
-            lower_end: center0 - v,
-            upper_end: center0 + v
+            min: center0 - v,
+            max: center0 + v
         };
         let box1 = AABB {
-            lower_end: center1 - v,
-            upper_end: center1 + v,
+            min: center1 - v,
+            max: center1 + v,
         };
         Some(aabb::surrounding_box(&box0, &box1))
     }
