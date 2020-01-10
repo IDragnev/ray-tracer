@@ -63,7 +63,12 @@ fn random_float_from_0_to_1() -> f32 {
     rand::thread_rng().gen_range(0.0, 1.0)
 }
 
-fn random_scene() -> World {
+fn random<T>(from: T, to: T) -> T 
+    where T: rand::distributions::uniform::SampleUniform {
+    rand::thread_rng().gen_range(from, to)
+}
+
+fn random_scene(time_interval: &Interval<f32>) -> World {
     use materials::{Lambertian, Metal, Dielectric};
     use math::{EuclideanSpace, InnerSpace};
     
@@ -83,7 +88,7 @@ fn random_scene() -> World {
     hittables.push(Box::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Box::new(Lambertian::new(vec3(0.4, 0.2, 0.1))))));
     hittables.push(Box::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Box::new(Metal::new(vec3(0.7, 0.6, 0.5), 0.0)))));
     
-    World::new(hittables)
+    World::new(hittables, time_interval)
 }
 
 fn random_sphere(center: Point3) -> Box<dyn Hittable> {
@@ -133,9 +138,10 @@ fn main() {
     let ny = 100;
     let pixel_samples_count = 100;
     let aspect = nx as f32 / ny as f32;
-    let world = random_scene();
+    let time_interval = Interval::new(0.0, 1.0).unwrap();
+    let world = random_scene(&time_interval);
     let camera = make_sample_camera(aspect);
-    let (tmin, tmax) = (0.0, 1.0);
+    let (tmin, tmax) = (time_interval.min(), time_interval.max());
     println!("P3\n{} {}\n255", nx, ny);
     for y in (0..ny).rev() {
         for x in 0..nx {
