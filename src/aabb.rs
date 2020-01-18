@@ -50,3 +50,78 @@ pub fn surrounding_box(a: &AABB, b: &AABB) -> AABB {
         max,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn surrounding_box_test() {
+        let a = AABB{ 
+            min: Point3::new(0.0, 0.0, 0.0),
+            max: Point3::new(3.0, 4.0, 5.0),
+        };
+        let b = AABB {
+            min: Point3::new(-1.0, 2.0, 3.0),
+            max: Point3::new(3.0, 100.0, 2.0),
+        };
+        let c = surrounding_box(&a, &b);
+
+        assert_eq!(c.min, Point3::new(-1.0, 0.0, 0.0));
+        assert_eq!(c.max, Point3::new(3.0, 100.0, 5.0));
+    }
+
+    #[test]
+    fn ray_outside_of_AABB_does_not_hit_it() {
+        use crate::math::vec3;
+
+        let aabb = AABB{ 
+            min: Point3::new(1.0, 1.0, 1.0),
+            max: Point3::new(5.0, 10.0, 30.0),
+        };
+        let ray = Ray::new(
+            Point3::new(0.0, 0.0, 0.0),
+            vec3(-1.0, 1.0, 1.0),
+            1.0
+        );
+        let hit_interval = Interval::new(0.0, 100.0).unwrap();
+
+        assert!(!aabb.hit(&ray, &hit_interval));
+    }
+    
+    #[test]
+    fn ray_parallel_to_AABB_does_not_hit_it() {
+        use crate::math::vec3;
+
+        let aabb = AABB{ 
+            min: Point3::new(1.0, 1.0, 1.0),
+            max: Point3::new(5.0, 10.0, 30.0),
+        };
+        let ray = Ray::new(
+            Point3::new(0.0, 0.0, 0.0),
+            vec3(0.0, 1.0, 1.0),
+            1.0
+        );
+        let hit_interval = Interval::new(0.0, 100.0).unwrap();
+
+        assert!(!aabb.hit(&ray, &hit_interval));
+    }
+    
+    #[test]
+    fn ray_through_AABB_hits_it() {
+        use crate::math::vec3;
+
+        let aabb = AABB{ 
+            min: Point3::new(1.0, 1.0, 1.0),
+            max: Point3::new(5.0, 10.0, 30.0),
+        };
+        let ray = Ray::new(
+            Point3::new(0.0, 0.0, 0.0),
+            vec3(1.0, 1.0, 1.0),
+            1.0
+        );
+        let hit_interval = Interval::new(0.0, 100.0).unwrap();
+
+        assert!(aabb.hit(&ray, &hit_interval));
+    }
+}
