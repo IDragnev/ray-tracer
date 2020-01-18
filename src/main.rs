@@ -6,6 +6,7 @@ mod materials;
 mod core;
 mod aabb;
 mod bvh;
+mod textures;
 
 use rand::Rng;
 use shapes::{
@@ -26,6 +27,15 @@ use world::World;
 use camera::{
     CameraAxis,
     Camera,
+};
+use materials::{
+    Lambertian, 
+    Dielectric,
+    Metal,
+};
+use textures::{
+    ConstantTexture,
+    CheckerTexture,
 };
 
 type Colour = Vec3;
@@ -69,11 +79,15 @@ fn random<T>(from: T, to: T) -> T
 }
 
 fn random_scene(time_interval: &Interval<f32>) -> World {
-    use materials::{Lambertian, Metal, Dielectric};
     use math::{EuclideanSpace, InnerSpace};
-    
+
     let mut hittables: Vec<Box<dyn Hittable>> = Vec::with_capacity(512);
-    hittables.push(Box::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Box::new(Lambertian::new(vec3(0.5, 0.5, 0.5))))));
+
+    let checker = CheckerTexture{
+        even: Box::new(ConstantTexture::from_rgb(vec3(0.2, 0.3, 0.1))),
+        odd: Box::new(ConstantTexture::from_rgb(vec3(0.9, 0.9, 0.9))),
+    };
+    hittables.push(Box::new(Sphere::new(Point3::new(0.0, -1000.0, 0.0), 1000.0, Box::new(Lambertian::new(Box::new(checker))))));
     
     for a in -10..10 {
         for b in -10..10 {
@@ -85,14 +99,13 @@ fn random_scene(time_interval: &Interval<f32>) -> World {
     }
     
     hittables.push(Box::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, Box::new(Dielectric::new(1.5)))));
-    hittables.push(Box::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Box::new(Lambertian::new(vec3(0.4, 0.2, 0.1))))));
+    hittables.push(Box::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Box::new(Lambertian::new(Box::new(ConstantTexture::from_rgb(vec3(0.4, 0.2, 0.1))))))));
     hittables.push(Box::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Box::new(Metal::new(vec3(0.7, 0.6, 0.5), 0.0)))));
     
     World::new(hittables, time_interval)
 }
 
 fn random_sphere(center: Point3) -> Box<dyn Hittable> {
-    use materials::{Lambertian, Metal, Dielectric};
     use shapes::moving_sphere::Centers;
 
     let rf01 = || random_float_from_0_to_1();
@@ -104,7 +117,7 @@ fn random_sphere(center: Point3) -> Box<dyn Hittable> {
             ending: center + vec3(0.0, 0.5*rf01(), 0.0),
         };
         let movement_time_interval = Interval::new(0.0, 1.0).unwrap();
-        let abledo = vec3(rf01()*rf01(), rf01()*rf01(), rf01()*rf01());
+        let abledo = Box::new(ConstantTexture::from_rgb(vec3(rf01()*rf01(), rf01()*rf01(), rf01()*rf01())));
         let material = Box::new(Lambertian::new(abledo));
         Box::new(MovingSphere::new(centers, radius, movement_time_interval, material))
     }
