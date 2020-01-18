@@ -51,7 +51,7 @@ impl Node {
 
 fn box_compare(left: &dyn Hittable, right: &dyn Hittable, dim: usize) -> std::cmp::Ordering {
     let interval = Interval::new(0.0, 0.3).unwrap();
-     match (left.bounding_box(&interval), right.bounding_box(&interval)) {
+    match (left.bounding_box(&interval), right.bounding_box(&interval)) {
         (Some(left_box), Some(right_box)) => {
             left_box.min[dim].partial_cmp(&right_box.min[dim])
                              .expect("NaN value in AABB")

@@ -66,7 +66,10 @@ impl Hittable for MovingSphere {
 
         let d_sqrt = discriminant.sqrt();
         let solutions = [(-b - d_sqrt) / a, (-b + d_sqrt) / a];
-        if let Some(x) = solutions.iter().find(|&&x| hit_interval.min() < x && x < hit_interval.max()) {
+        solutions
+        .iter()
+        .find(|&&x| hit_interval.min() < x && x < hit_interval.max()) 
+        .and_then(|x| {
             let t = *x;
             let hit_point = ray.at(t);
             let normal = (hit_point - center) / self.radius;
@@ -76,10 +79,7 @@ impl Hittable for MovingSphere {
                 normal,
                 material: self.material.as_ref(),
             })
-        }
-        else { 
-            None
-        }
+        })
     }
 
     fn bounding_box(&self, time_interval: &Interval<f32>) -> Option<AABB> {
@@ -95,5 +95,62 @@ impl Hittable for MovingSphere {
             max: center1 + v,
         };
         Some(aabb::surrounding_box(&box0, &box1))
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::materials::Dielectric;
+
+    #[test]
+    fn ray_outside_a_moving_sphere_at_cast_time_does_not_hit_it() {
+        let centers = Centers{ 
+            starting: Point3::new(2.0, 2.0, 2.0),
+            ending: Point3::new(-1.0, 3.0, 3.0),
+        };
+        let movement_interval = Interval::new(0.0, 10.0).unwrap(); 
+        let sphere = MovingSphere::new(
+            centers,
+            2.0,
+            movement_interval,
+            Box::new(Dielectric::new(1.5)),
+        );
+        let ray = Ray::new(
+            Point3::new(0.0, 0.0, 0.0),
+            math::vec3(-1.0, 2.0, 2.0),
+            0.0
+        );
+        let interval = Interval::new(0.0, 100.0).unwrap();
+
+        let interaction = sphere.hit(&ray, &interval);
+
+        assert!(interaction.is_none());
+    }
+
+    #[test]
+    fn ray_through_a_moving_sphere_at_cast_time_hits_it() {
+        let centers = Centers {
+            starting: Point3::new(2.0, 2.0, 2.0),
+            ending: Point3::new(300.0, 200.0, 200.5),
+        };
+        let movement_interval = Interval::new(0.0, 10.0).unwrap();
+        let sphere = MovingSphere::new(
+            centers,
+            2.0,
+            movement_interval,
+            Box::new(Dielectric::new(1.5)),
+        );
+        let ray = Ray::new(
+            Point3::new(0.0, 0.0, 0.0),
+            math::vec3(1.0, 1.0, 1.0),
+            0.0
+        );
+        let interval = Interval::new(0.0, 100.0).unwrap();
+
+        let interaction = sphere.hit(&ray, &interval);
+
+        assert!(interaction.is_some());
     }
 }

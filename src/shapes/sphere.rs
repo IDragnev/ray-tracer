@@ -41,7 +41,10 @@ impl Hittable for Sphere {
 
         let d_sqrt = discriminant.sqrt();
         let solutions = [(-b - d_sqrt) / a, (-b + d_sqrt) / a];
-        if let Some(x) = solutions.iter().find(|&&x| hit_interval.min() < x && x < hit_interval.max()) {
+        solutions
+        .iter()
+        .find(|&&x| hit_interval.min() < x && x < hit_interval.max()) 
+        .and_then(|x| {
             let t = *x;
             let hit_point = ray.at(t);
             let normal = (hit_point - self.center) / self.radius;
@@ -51,18 +54,57 @@ impl Hittable for Sphere {
                 normal,
                 material: self.material.as_ref(),
             })
-        }
-        else { 
-            None
-        }
+        })
     }
 
     fn bounding_box(&self, _: &Interval<f32>) -> Option<AABB> {
         let v = math::vec3(self.radius, self.radius, self.radius);
-        let b = AABB {
+        Some(AABB {
             min: self.center - v,
             max: self.center + v,
-        };
-        Some(b)
+        })
+    }
+}
+
+#[cfg(test)] 
+mod tests {
+    use super::*;
+    use crate::materials::Dielectric;
+    #[test]
+    fn ray_outside_a_sphere_does_not_hit_it() {
+        let sphere = Sphere::new(
+            Point3::new(2.0, 2.0, 2.0),
+            2.0,
+            Box::new(Dielectric::new(1.5)),
+        );
+        let ray = Ray::new(
+            Point3::new(0.0, 0.0, 0.0),
+            math::vec3(-1.0, 2.0, 2.0),
+            1.0
+        );
+        let interval = Interval::new(0.0, 100.0).unwrap();
+
+        let interaction = sphere.hit(&ray, &interval);
+
+        assert!(interaction.is_none());
+    }
+
+    #[test]
+    fn ray_through_a_sphere_hits_it() {
+        let sphere = Sphere::new(
+            Point3::new(2.0, 2.0, 2.0),
+            2.0,
+            Box::new(Dielectric::new(1.5)),
+        );
+        let ray = Ray::new(
+            Point3::new(0.0, 0.0, 0.0),
+            math::vec3(1.0, 1.0, 1.0),
+            1.0
+        );
+        let interval = Interval::new(0.0, 100.0).unwrap();
+
+        let interaction = sphere.hit(&ray, &interval);
+
+        assert!(interaction.is_some());
     }
 }

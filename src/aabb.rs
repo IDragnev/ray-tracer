@@ -72,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn ray_outside_of_AABB_does_not_hit_it() {
+    fn ray_outside_of_aabb_does_not_hit_it() {
         use crate::math::vec3;
 
         let aabb = AABB{ 
@@ -90,7 +90,7 @@ mod tests {
     }
     
     #[test]
-    fn ray_parallel_to_AABB_does_not_hit_it() {
+    fn ray_parallel_to_aabb_does_not_hit_it() {
         use crate::math::vec3;
 
         let aabb = AABB{ 
@@ -108,7 +108,7 @@ mod tests {
     }
     
     #[test]
-    fn ray_through_AABB_hits_it() {
+    fn ray_through_aabb_hits_it() {
         use crate::math::vec3;
 
         let aabb = AABB{ 
