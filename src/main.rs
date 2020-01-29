@@ -36,6 +36,7 @@ use materials::{
 use textures::{
     ConstantTexture,
     CheckerTexture,
+    NoiseTexture,
 };
 
 type Colour = Vec3;
@@ -132,6 +133,13 @@ fn random_sphere(center: Point3) -> Box<dyn Hittable> {
         let material = Box::new(Dielectric::new(refractive_index));
         Box::new(Sphere::new(center, radius, material))
     }
+}
+
+fn two_perlin_spheres(time_interval: &Interval<f32>) -> World {
+    let mut hittables: Vec<Box<dyn Hittable>> = Vec::new();
+    hittables.push(Box::new(Sphere::new(Point3::new(0.0,-1000.0, 0.0), 1000.0, Box::new(Lambertian::new(Box::new(NoiseTexture::new(4.0)))))));
+    hittables.push(Box::new(Sphere::new(Point3::new(0.0, 2.0, 0.0), 2.0, Box::new(Lambertian::new(Box::new(NoiseTexture::new(4.0)))))));
+    World::new(hittables, time_interval)
 }
 
 fn make_sample_camera(aspect: f32) -> Camera {
