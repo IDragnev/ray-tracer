@@ -1,17 +1,21 @@
-use crate::math::{
-    self,
-    Point3, 
-    Interval,
-};
-use crate::core::{
-    Hittable, 
-    Interaction,
-    Ray,
-};
-use crate::materials::Material;
-use crate::aabb::{
-    self,
-    AABB,
+use crate::{
+    math::{
+        self,
+        Point3, 
+        Interval,
+    },
+    core::{
+        Hittable, 
+        Interaction,
+        Ray,
+    },
+    materials::{
+        Material,
+    },
+    aabb::{
+        self,
+        AABB,
+    }
 };
 
 pub struct Centers {

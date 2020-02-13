@@ -1,25 +1,31 @@
-use crate::math::Interval;
-use crate::core::{
-    Ray,
-    Interaction,
-    Hittable,
+use crate::{
+    math::{
+        Interval,
+    },
+    core::{
+        Ray,
+        Interaction,
+        Hittable,
+    },
+    aabb::{
+        AABB,
+    },
+    bvh,
 };
-use crate::aabb::AABB;
-use crate::bvh;
 
-pub struct World {
+pub struct Scene {
     root: bvh::Node,
 }
 
-impl World {
+impl Scene {
     pub fn new(hittables: Vec<Box<dyn Hittable>>, time_interval: &Interval<f32>) -> Self {
-        World {
+        Scene {
             root: bvh::Node::new(hittables, time_interval),
         }
     }
 }
 
-impl Hittable for World {
+impl Hittable for Scene {
     fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<Interaction> {
         self.root.hit(ray, hit_interval)
     }

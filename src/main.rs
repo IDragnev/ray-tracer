@@ -1,6 +1,6 @@
 mod math;
 mod shapes;
-mod world;
+mod scene;
 mod camera;
 mod materials;
 mod core;
@@ -23,7 +23,7 @@ use crate::core::{
     Ray, 
     Hittable,
 };
-use world::World;
+use scene::Scene;
 use camera::{
     CameraAxis,
     Camera,
@@ -41,16 +41,16 @@ use textures::{
 
 type Colour = Vec3;
 
-fn to_colour(ray: &Ray, world: &World, depth: i32) -> Colour {
+fn to_colour(ray: &Ray, scene: &Scene, depth: i32) -> Colour {
     use materials::Result;
     use math::{InnerSpace, VectorSpace};
 
     let interval = Interval::new(0.001, std::f32::MAX).unwrap();
-    if let Some(interaction) = world.hit(ray, &interval) {
+    if let Some(interaction) = scene.hit(ray, &interval) {
         let scatter_result = interaction.material.scatter(ray, &interaction);
         if depth < 50 && scatter_result.is_some() {
             let Result{ scattered_ray, attenuation } = scatter_result.unwrap();
-            let colour = to_colour(&scattered_ray, world, depth + 1);
+            let colour = to_colour(&scattered_ray, scene, depth + 1);
             Colour::new(
              attenuation[0] * colour[0],
              attenuation[1] * colour[1],
@@ -79,7 +79,7 @@ fn random<T>(from: T, to: T) -> T
     rand::thread_rng().gen_range(from, to)
 }
 
-fn random_scene(time_interval: &Interval<f32>) -> World {
+fn random_scene(time_interval: &Interval<f32>) -> Scene {
     use math::{EuclideanSpace, InnerSpace};
 
     let mut hittables: Vec<Box<dyn Hittable>> = Vec::with_capacity(512);
@@ -103,7 +103,7 @@ fn random_scene(time_interval: &Interval<f32>) -> World {
     hittables.push(Box::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, Box::new(Lambertian::new(Box::new(ConstantTexture::from_rgb(vec3(0.4, 0.2, 0.1))))))));
     hittables.push(Box::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, Box::new(Metal::new(vec3(0.7, 0.6, 0.5), 0.0)))));
     
-    World::new(hittables, time_interval)
+    Scene::new(hittables, time_interval)
 }
 
 fn random_sphere(center: Point3) -> Box<dyn Hittable> {
@@ -135,11 +135,11 @@ fn random_sphere(center: Point3) -> Box<dyn Hittable> {
     }
 }
 
-fn two_perlin_spheres(time_interval: &Interval<f32>) -> World {
+fn two_perlin_spheres(time_interval: &Interval<f32>) -> Scene {
     let mut hittables: Vec<Box<dyn Hittable>> = Vec::new();
     hittables.push(Box::new(Sphere::new(Point3::new(0.0,-1000.0, 0.0), 1000.0, Box::new(Lambertian::new(Box::new(NoiseTexture::new(4.0)))))));
     hittables.push(Box::new(Sphere::new(Point3::new(0.0, 2.0, 0.0), 2.0, Box::new(Lambertian::new(Box::new(NoiseTexture::new(4.0)))))));
-    World::new(hittables, time_interval)
+    Scene::new(hittables, time_interval)
 }
 
 fn make_sample_camera(aspect: f32) -> Camera {
@@ -160,7 +160,7 @@ fn main() {
     let pixel_samples_count = 100;
     let aspect = nx as f32 / ny as f32;
     let time_interval = Interval::new(0.0, 1.0).unwrap();
-    let world = random_scene(&time_interval);
+    let scene = random_scene(&time_interval);
     let camera = make_sample_camera(aspect);
     let (tmin, tmax) = (time_interval.min(), time_interval.max());
     println!("P3\n{} {}\n255", nx, ny);
@@ -172,7 +172,7 @@ fn main() {
                 let v = (y as f32 + random_float_from_0_to_1()) / ny as f32;
                 let time = tmin + random_float_from_0_to_1()*(tmax - tmin);
                 let ray = camera.make_ray((u, v), time);
-                colour += to_colour(&ray, &world, 0);
+                colour += to_colour(&ray, &scene, 0);
             }
             let colour = (colour / pixel_samples_count as f32).map(|c| c.sqrt());
             let red   = (255.99 * colour[0]) as i32;

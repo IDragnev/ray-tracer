@@ -1,15 +1,21 @@
-use crate::math::{
-    self,
-    Point3, 
-    Interval,
+use crate::{
+    math::{
+        self,
+        Point3, 
+        Interval,
+    },
+    core::{
+        Hittable, 
+        Interaction,
+        Ray,
+    },
+    materials::{
+        Material,
+    },
+    aabb::{
+        AABB,
+    }
 };
-use crate::core::{
-    Hittable, 
-    Interaction,
-    Ray,
-};
-use crate::materials::Material;
-use crate::aabb::AABB;
 
 pub struct Sphere {
     pub center: Point3,

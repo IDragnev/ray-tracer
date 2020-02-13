@@ -1,9 +1,11 @@
-use crate::math::{
-    Point3,
-    Interval,
-};
-use crate::core::{
-    Ray,
+use crate::{
+    math::{
+        Point3,
+        Interval,
+    },
+    core::{
+        Ray,
+    },
 };
 
 #[derive(Copy, Clone)]

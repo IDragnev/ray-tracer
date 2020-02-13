@@ -1,14 +1,16 @@
-use crate::core::{
-    Ray,
-    Interaction,
-    Hittable,
-};
-use crate::aabb::{
-    self,
-    AABB,
-};
-use crate::math::{
-    Interval,
+use crate::{
+    core::{
+        Ray,
+        Interaction,
+        Hittable,
+    },
+    aabb::{
+        self,
+        AABB,
+    },
+    math::{
+        Interval,
+    },
 };
 
 type BoxedHittable = Box<dyn Hittable>;

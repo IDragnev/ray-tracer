@@ -1,11 +1,13 @@
-use crate::math;
-use crate::materials::{
-    Material,
-    Result,
-};
-use crate::core::{
-    Interaction,
-    Ray,
+use crate::{
+    math,
+    materials::{
+        Material,
+        Result,
+    },
+    core::{
+        Interaction,
+        Ray,
+    }
 };
 
 pub struct Dielectric {

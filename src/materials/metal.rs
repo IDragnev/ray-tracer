@@ -1,12 +1,14 @@
-use crate::math;
-use crate::core::{
-    Ray,
-    Interaction,
-};
-use crate::materials::{
-    self,
-    Material,
-    Result,
+use crate::{
+    math,
+    core::{
+        Ray,
+        Interaction,
+    },
+    materials::{
+        self,
+        Material,
+        Result,
+    }
 };
 
 pub struct Metal {
@@ -28,6 +30,7 @@ impl Material for Metal {
     fn scatter(&self, ray: &Ray, interaction: &Interaction) -> Option<Result> {
         use math::{InnerSpace, EuclideanSpace};
         use materials::random_point_from_unit_sphere;
+
         let reflected_dir = math::reflected(&ray.direction.normalize(), &interaction.normal);
         let is_angle_acute = math::dot(reflected_dir, interaction.normal) > 0.0;
         if is_angle_acute {
