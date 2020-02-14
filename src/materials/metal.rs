@@ -5,9 +5,8 @@ use crate::{
         HitRecord,
     },
     materials::{
-        self,
         Material,
-        Result,
+        ScatterResult,
     }
 };
 
@@ -27,15 +26,14 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Result> {
-        use math::{InnerSpace, EuclideanSpace};
-        use materials::random_point_from_unit_sphere;
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
+        use math::{InnerSpace, EuclideanSpace, random_point_from_unit_sphere};
 
         let reflected_dir = math::reflected(&ray.direction.normalize(), &hit_record.normal);
         let is_angle_acute = math::dot(reflected_dir, hit_record.normal) > 0.0;
         if is_angle_acute {
             let direction = reflected_dir + self.fuzz * random_point_from_unit_sphere().to_vec();
-            Some(Result{
+            Some(ScatterResult{
                 scattered_ray: Ray::new(hit_record.hit_point, direction, ray.time),
                 attenuation: self.albedo,
             })

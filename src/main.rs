@@ -1,3 +1,4 @@
+mod random;
 mod math;
 mod shapes;
 mod scene;
@@ -8,7 +9,6 @@ mod aabb;
 mod bvh;
 mod textures;
 
-use rand::Rng;
 use shapes::{
     Sphere,
     MovingSphere,
@@ -38,18 +38,21 @@ use textures::{
     CheckerTexture,
     NoiseTexture,
 };
+use random::{
+    random_float_from_0_to_1,
+};
 
 type Colour = Vec3;
 
 fn to_colour(ray: &Ray, scene: &Scene, depth: i32) -> Colour {
-    use materials::Result;
+    use materials::ScatterResult;
     use math::{InnerSpace, VectorSpace};
 
     let interval = Interval::new(0.001, std::f32::MAX).unwrap();
     if let Some(hit_record) = scene.hit(ray, &interval) {
         let scatter_result = hit_record.material.scatter(ray, &hit_record);
         if depth < 50 && scatter_result.is_some() {
-            let Result{ scattered_ray, attenuation } = scatter_result.unwrap();
+            let ScatterResult{ scattered_ray, attenuation } = scatter_result.unwrap();
             let colour = to_colour(&scattered_ray, scene, depth + 1);
             Colour::new(
              attenuation[0] * colour[0],
@@ -68,15 +71,6 @@ fn to_colour(ray: &Ray, scene: &Scene, depth: i32) -> Colour {
         let end = vec3(0.5, 0.7, 1.0);
         start.lerp(end, t)
     }
-}
-
-fn random_float_from_0_to_1() -> f32 {
-    rand::thread_rng().gen_range(0.0, 1.0)
-}
-
-fn random<T>(from: T, to: T) -> T 
-    where T: rand::distributions::uniform::SampleUniform {
-    rand::thread_rng().gen_range(from, to)
 }
 
 fn random_scene(time_interval: &Interval<f32>) -> Scene {

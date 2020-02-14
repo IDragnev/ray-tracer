@@ -11,6 +11,7 @@ use crate::{
     math::{
         Interval,
     },
+    random,
 };
 
 type BoxedHittable = Box<dyn Hittable>;
@@ -23,7 +24,7 @@ pub struct Node {
 
 impl Node {
     pub fn new(mut hittables: Vec<BoxedHittable>, time_interval: &Interval<f32>) -> Node {
-        let axis = crate::random(0, 3);
+        let axis = random::gen_range(0, 3);
         hittables.sort_unstable_by(|a, b| box_compare(&**a, &**b, axis));
         
         let (left, right) = match hittables.len() {

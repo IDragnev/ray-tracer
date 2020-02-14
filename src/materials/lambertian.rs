@@ -1,8 +1,7 @@
 use crate::{
     math,
     materials::{
-        self,
-        Result,
+        ScatterResult,
         Material,
     },
     core::{
@@ -27,14 +26,13 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Result> {
-        use materials::random_point_from_unit_sphere;
-        use math::EuclideanSpace;
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
+        use math::{random_point_from_unit_sphere, EuclideanSpace};
         
         let tangent_unit_sphere_center = hit_record.hit_point + hit_record.normal;
         let target_point = tangent_unit_sphere_center + random_point_from_unit_sphere().to_vec();
         let direction = target_point - hit_record.hit_point;
-        Some(Result{
+        Some(ScatterResult{
             attenuation: self.albedo.value((0.0, 0.0), &hit_record.hit_point),
             scattered_ray: Ray::new(hit_record.hit_point, direction, ray.time),
         })

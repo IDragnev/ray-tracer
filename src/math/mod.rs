@@ -35,3 +35,17 @@ pub fn schlick(cosine: f32, refractive_index: f32) -> f32 {
     };
     r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
 }
+
+pub fn random_point_from_unit_sphere() -> Point3 {
+    use crate::random_float_from_0_to_1;
+
+    loop {
+        let vec = 
+            vec3(random_float_from_0_to_1(), random_float_from_0_to_1(), random_float_from_0_to_1())
+            .map(|c| 2.0 * c)
+            .map(|c| c - 1.0);
+        if vec.magnitude() < 1.0 {
+            return EuclideanSpace::from_vec(vec);
+        }
+    }
+}

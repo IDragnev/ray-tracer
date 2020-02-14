@@ -2,7 +2,7 @@ use crate::{
     math,
     materials::{
         Material,
-        Result,
+        ScatterResult,
     },
     core::{
         HitRecord,
@@ -23,7 +23,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Result> {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
         use math::{InnerSpace, vec3};
         use crate::random_float_from_0_to_1;
            
@@ -51,7 +51,7 @@ impl Material for Dielectric {
             refracted_direction
         };
 
-        Some(Result{
+        Some(ScatterResult{
             scattered_ray: Ray::new(hit_record.hit_point, direction, ray.time),
             attenuation: vec3(1.0, 1.0, 1.0),
         })
