@@ -6,7 +6,7 @@ use crate::{
     },
     core::{
         Hittable, 
-        Interaction,
+        HitRecord,
         Ray,
     },
     materials::{
@@ -34,7 +34,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<Interaction> {
+    fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<HitRecord> {
         use math::dot;
         let oc = ray.origin - self.center;
         let a = dot(ray.direction, ray.direction);
@@ -54,7 +54,7 @@ impl Hittable for Sphere {
             let t = *x;
             let hit_point = ray.at(t);
             let normal = (hit_point - self.center) / self.radius;
-            Some(Interaction {
+            Some(HitRecord {
                 t,
                 hit_point,
                 normal,
@@ -90,9 +90,9 @@ mod tests {
         );
         let interval = Interval::new(0.0, 100.0).unwrap();
 
-        let interaction = sphere.hit(&ray, &interval);
+        let hit_record = sphere.hit(&ray, &interval);
 
-        assert!(interaction.is_none());
+        assert!(hit_record.is_none());
     }
 
     #[test]
@@ -109,8 +109,8 @@ mod tests {
         );
         let interval = Interval::new(0.0, 100.0).unwrap();
 
-        let interaction = sphere.hit(&ray, &interval);
+        let hit_record = sphere.hit(&ray, &interval);
 
-        assert!(interaction.is_some());
+        assert!(hit_record.is_some());
     }
 }

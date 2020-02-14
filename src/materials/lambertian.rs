@@ -7,7 +7,7 @@ use crate::{
     },
     core::{
         Ray,
-        Interaction,
+        HitRecord,
     },
     textures::{
         Texture,
@@ -27,16 +27,16 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray: &Ray, interaction: &Interaction) -> Option<Result> {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Result> {
         use materials::random_point_from_unit_sphere;
         use math::EuclideanSpace;
         
-        let tangent_unit_sphere_center = interaction.hit_point + interaction.normal;
+        let tangent_unit_sphere_center = hit_record.hit_point + hit_record.normal;
         let target_point = tangent_unit_sphere_center + random_point_from_unit_sphere().to_vec();
-        let direction = target_point - interaction.hit_point;
+        let direction = target_point - hit_record.hit_point;
         Some(Result{
-            attenuation: self.albedo.value((0.0, 0.0), &interaction.hit_point),
-            scattered_ray: Ray::new(interaction.hit_point, direction, ray.time),
+            attenuation: self.albedo.value((0.0, 0.0), &hit_record.hit_point),
+            scattered_ray: Ray::new(hit_record.hit_point, direction, ray.time),
         })
     }
 }

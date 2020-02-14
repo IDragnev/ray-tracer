@@ -5,7 +5,7 @@ use crate::{
         Result,
     },
     core::{
-        Interaction,
+        HitRecord,
         Ray,
     }
 };
@@ -23,19 +23,19 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, interaction: &Interaction) -> Option<Result> {
+    fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<Result> {
         use math::{InnerSpace, vec3};
         use crate::random_float_from_0_to_1;
            
-        let direction_normal_dot = math::dot(ray.direction, interaction.normal);
+        let direction_normal_dot = math::dot(ray.direction, hit_record.normal);
         let (outward_normal, ni_over_nt, cosine) = 
             if direction_normal_dot > 0.0 {
                 let cosine = self.refractive_index * direction_normal_dot / ray.direction.magnitude();
-                (-interaction.normal, self.refractive_index, cosine)
+                (-hit_record.normal, self.refractive_index, cosine)
             }
             else {
                 let cosine = -direction_normal_dot / ray.direction.magnitude();
-                (interaction.normal, 1.0 / self.refractive_index, cosine)
+                (hit_record.normal, 1.0 / self.refractive_index, cosine)
             };                
         let (refracted_direction, reflection_coefficient) = 
             if let Some(refracted_direction) = math::refracted(&ray.direction, &outward_normal, ni_over_nt) {
@@ -45,14 +45,14 @@ impl Material for Dielectric {
                 (vec3(0.0, 0.0, 0.0), 1.0)
             };
         let direction = if random_float_from_0_to_1() < reflection_coefficient { 
-            math::reflected(&ray.direction, &interaction.normal) 
+            math::reflected(&ray.direction, &hit_record.normal) 
         } 
         else { 
             refracted_direction
         };
 
         Some(Result{
-            scattered_ray: Ray::new(interaction.hit_point, direction, ray.time),
+            scattered_ray: Ray::new(hit_record.hit_point, direction, ray.time),
             attenuation: vec3(1.0, 1.0, 1.0),
         })
     }

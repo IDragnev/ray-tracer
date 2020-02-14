@@ -15,7 +15,7 @@ pub struct Result {
 }
 
 pub trait Material {
-    fn scatter(&self, ray: &core::Ray, interaction: &core::Interaction) -> Option<Result>;
+    fn scatter(&self, ray: &core::Ray, hit_record: &core::HitRecord) -> Option<Result>;
 }
 
 fn random_point_from_unit_sphere() -> math::Point3 {

@@ -1,7 +1,7 @@
 use crate::{
     core::{
         Ray,
-        Interaction,
+        HitRecord,
         Hittable,
     },
     aabb::{
@@ -63,7 +63,7 @@ fn box_compare(left: &dyn Hittable, right: &dyn Hittable, dim: usize) -> std::cm
 }
 
 impl Hittable for Node {
-    fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<Interaction> {
+    fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<HitRecord> {
         if !self.bounding_box.hit(ray, hit_interval) {
             return None;
         }

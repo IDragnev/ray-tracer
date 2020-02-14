@@ -46,8 +46,8 @@ fn to_colour(ray: &Ray, scene: &Scene, depth: i32) -> Colour {
     use math::{InnerSpace, VectorSpace};
 
     let interval = Interval::new(0.001, std::f32::MAX).unwrap();
-    if let Some(interaction) = scene.hit(ray, &interval) {
-        let scatter_result = interaction.material.scatter(ray, &interaction);
+    if let Some(hit_record) = scene.hit(ray, &interval) {
+        let scatter_result = hit_record.material.scatter(ray, &hit_record);
         if depth < 50 && scatter_result.is_some() {
             let Result{ scattered_ray, attenuation } = scatter_result.unwrap();
             let colour = to_colour(&scattered_ray, scene, depth + 1);

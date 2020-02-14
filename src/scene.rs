@@ -4,7 +4,7 @@ use crate::{
     },
     core::{
         Ray,
-        Interaction,
+        HitRecord,
         Hittable,
     },
     aabb::{
@@ -26,7 +26,7 @@ impl Scene {
 }
 
 impl Hittable for Scene {
-    fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<Interaction> {
+    fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<HitRecord> {
         self.root.hit(ray, hit_interval)
     }
 
