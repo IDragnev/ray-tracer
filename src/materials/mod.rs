@@ -11,6 +11,7 @@ use crate::{
     math,
 };
 
+#[derive(Copy, Clone)]
 pub struct ScatterResult {
     pub attenuation: math::Vec3,
     pub scattered_ray: core::Ray,

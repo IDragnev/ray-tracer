@@ -58,6 +58,7 @@ impl MovingSphere {
 impl Hittable for MovingSphere {
     fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<HitRecord> {
         use math::dot;
+        
         let center = self.center_at(ray.time);
         let oc = ray.origin - center;
         let a = dot(ray.direction, ray.direction);

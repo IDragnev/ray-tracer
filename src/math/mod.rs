@@ -37,7 +37,7 @@ pub fn schlick(cosine: f32, refractive_index: f32) -> f32 {
 }
 
 pub fn random_point_from_unit_sphere() -> Point3 {
-    use crate::random_float_from_0_to_1;
+    use crate::random::random_float_from_0_to_1;
 
     loop {
         let vec = 

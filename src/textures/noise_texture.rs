@@ -6,7 +6,8 @@ use crate::{
         self,
         Point3,
         Vec3,
-    }
+    },
+    random,
 };
 
 pub struct NoiseTexture {
@@ -100,7 +101,7 @@ impl PerlinData {
 
 fn random_255_unit_vectors() -> Vec<Vec3> {
     use math::InnerSpace;
-    let rand = || 2.0*crate::random_float_from_0_to_1() - 1.0;
+    let rand = || 2.0*random::random_float_from_0_to_1() - 1.0;
     (0..256)
     .map(|_| {
         math::vec3(rand(), rand(), rand()).normalize()
@@ -115,7 +116,8 @@ fn random_permutation_0_to_255() -> Vec<usize> {
 }
 
 fn permute(vec: &mut Vec<usize>) {
-    use crate::random_float_from_0_to_1;
+    use random::random_float_from_0_to_1;
+    
     for i in (1..vec.len()).rev() {
         let target = random_float_from_0_to_1()*(i as f32 + 1.0);
         let target = target.floor() as usize;

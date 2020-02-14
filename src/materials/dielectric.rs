@@ -7,9 +7,11 @@ use crate::{
     core::{
         HitRecord,
         Ray,
-    }
+    },
+    random,
 };
 
+#[derive(Copy, Clone)]
 pub struct Dielectric {
     pub refractive_index: f32,
 }
@@ -25,7 +27,6 @@ impl Dielectric {
 impl Material for Dielectric {
     fn scatter(&self, ray: &Ray, hit_record: &HitRecord) -> Option<ScatterResult> {
         use math::{InnerSpace, vec3};
-        use crate::random_float_from_0_to_1;
            
         let direction_normal_dot = math::dot(ray.direction, hit_record.normal);
         let (outward_normal, ni_over_nt, cosine) = 
@@ -44,7 +45,7 @@ impl Material for Dielectric {
             else {
                 (vec3(0.0, 0.0, 0.0), 1.0)
             };
-        let direction = if random_float_from_0_to_1() < reflection_coefficient { 
+        let direction = if random::random_float_from_0_to_1() < reflection_coefficient { 
             math::reflected(&ray.direction, &hit_record.normal) 
         } 
         else { 

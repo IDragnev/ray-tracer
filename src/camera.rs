@@ -1,21 +1,28 @@
-use crate::math::{
-    self,
-    Point3,
-    Vec3,
+use crate::{
+    math::{
+        self,
+        Point3,
+        Vec3,
+    },
+    core::{
+        Ray,
+    },
 };
-use crate::core::Ray;
 
+#[derive(Copy, Clone, Debug)]
 pub struct CameraAxis {
     pub look_from: Point3,
     pub look_at: Point3,
 }
 
+#[derive(Copy, Clone, Debug)]
 struct CameraOrientation {
     pub u: Vec3,
     pub v: Vec3,
     pub w: Vec3,
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct Camera {
     origin: Point3,
     lower_left_corner: Point3,
@@ -25,6 +32,7 @@ pub struct Camera {
     lens_radius: f32,
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct FieldOfView {
     radians: f32,
 }
@@ -35,6 +43,7 @@ impl FieldOfView {
             radians: degrees.to_radians(),
         }
     }
+
     pub fn to_radians(&self) -> f32 {
         self.radians
     }
@@ -43,6 +52,7 @@ impl FieldOfView {
 impl Camera {
     pub fn new(axis: CameraAxis, vector_up: Vec3, fov: FieldOfView, aspect: f32, aperture: f32, focus_dist: f32) -> Camera {
         use math::InnerSpace;
+
         let theta = fov.to_radians();
         let half_height = f32::tan(theta / 2.0);
         let half_width = aspect * half_height;
@@ -55,6 +65,7 @@ impl Camera {
             - half_width  * focus_dist * orientation.u
             - half_height * focus_dist * orientation.v
             - focus_dist * orientation.w;
+
         Camera {
             origin,
             lower_left_corner,
@@ -76,7 +87,8 @@ impl Camera {
 
 fn random_point_in_unit_disk() -> Point3 {
     use crate::math::{vec3, EuclideanSpace, InnerSpace};
-    use crate::random_float_from_0_to_1;
+    use crate::random::random_float_from_0_to_1;
+    
     loop {
         let mut vec = vec3(random_float_from_0_to_1(), random_float_from_0_to_1(), 0.0);
         vec = 2.0 * vec - vec3(1.0, 1.0, 0.0);
