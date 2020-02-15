@@ -15,7 +15,10 @@ use crate::{
     aabb::{
         self,
         AABB,
-    }
+    },
+    textures::{
+        TextureCoordinates,
+    },
 };
 
 pub struct Centers {
@@ -57,7 +60,7 @@ impl MovingSphere {
 
 impl Hittable for MovingSphere {
     fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<HitRecord> {
-        use math::dot;
+        use math::{dot, EuclideanSpace};
         
         let center = self.center_at(ray.time);
         let oc = ray.origin - center;
@@ -78,11 +81,13 @@ impl Hittable for MovingSphere {
             let t = *x;
             let hit_point = ray.at(t);
             let normal = (hit_point - center) / self.radius;
+            let unit_sphere_coords = Point3::from_vec(normal);
             Some(HitRecord {
                 t,
                 hit_point,
                 normal,
                 material: self.material.as_ref(),
+                uv: TextureCoordinates::from_unit_sphere_coordinates(&unit_sphere_coords),
             })
         })
     }

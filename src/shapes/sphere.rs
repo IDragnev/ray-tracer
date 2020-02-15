@@ -14,6 +14,9 @@ use crate::{
     },
     aabb::{
         AABB,
+    },
+    textures::{
+        TextureCoordinates,
     }
 };
 
@@ -35,7 +38,7 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<HitRecord> {
-        use math::dot;
+        use math::{dot, EuclideanSpace};
         
         let oc = ray.origin - self.center;
         let a = dot(ray.direction, ray.direction);
@@ -55,11 +58,13 @@ impl Hittable for Sphere {
             let t = *x;
             let hit_point = ray.at(t);
             let normal = (hit_point - self.center) / self.radius;
+            let unit_sphere_coords = Point3::from_vec(normal);
             Some(HitRecord {
                 t,
                 hit_point,
                 normal,
                 material: self.material.as_ref(),
+                uv: TextureCoordinates::from_unit_sphere_coordinates(&unit_sphere_coords),
             })
         })
     }

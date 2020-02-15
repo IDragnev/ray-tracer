@@ -1,6 +1,7 @@
 use crate::{
     textures::{
         Texture,
+        TextureCoordinates,
     },
     math::{
         self,
@@ -10,6 +11,7 @@ use crate::{
     random,
 };
 
+#[derive(Copy, Clone)]
 pub struct NoiseTexture {
     data: &'static PerlinData,
     scale: f32,
@@ -29,7 +31,7 @@ impl NoiseTexture {
 }
 
 impl Texture for NoiseTexture {
-    fn value(&self, _: (f32, f32), p: &Point3) -> Vec3 {
+    fn value(&self, _: &TextureCoordinates, p: &Point3) -> Vec3 {
         let depth = 7;
         let result = self.scale*p.z + 10.0*self.data.turb(p, depth);
         let result = result.sin() + 1.0;

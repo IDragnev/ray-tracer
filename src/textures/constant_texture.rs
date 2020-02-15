@@ -5,6 +5,7 @@ use crate::{
     },
     textures::{
         Texture,
+        TextureCoordinates,
     },
 };
 
@@ -21,7 +22,7 @@ impl ConstantTexture {
 }
 
 impl Texture for ConstantTexture {
-    fn value(&self, _: (f32, f32), _: &Point3) -> Vec3 {
+    fn value(&self, _: &TextureCoordinates, _: &Point3) -> Vec3 {
         self.colour
     }
 }

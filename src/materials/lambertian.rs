@@ -10,6 +10,7 @@ use crate::{
     },
     textures::{
         Texture,
+        TextureCoordinates,
     },
 };
 
@@ -32,8 +33,9 @@ impl Material for Lambertian {
         let tangent_unit_sphere_center = hit_record.hit_point + hit_record.normal;
         let target_point = tangent_unit_sphere_center + random_point_from_unit_sphere().to_vec();
         let direction = target_point - hit_record.hit_point;
+        let uv = TextureCoordinates::zero();
         Some(ScatterResult{
-            attenuation: self.albedo.value((0.0, 0.0), &hit_record.hit_point),
+            attenuation: self.albedo.value(&uv, &hit_record.hit_point),
             scattered_ray: Ray::new(hit_record.hit_point, direction, ray.time),
         })
     }
