@@ -9,6 +9,7 @@ use crate::{
     },
 };
 
+#[derive(Copy, Clone)]
 pub struct ConstantTexture {
     colour: Vec3,
 }
