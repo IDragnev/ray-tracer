@@ -33,23 +33,22 @@ use crate::{
 };
 
 pub fn scene(camera_aspect: f32, time_interval: &Interval<f32>) -> (Scene, Camera) {
-    let white_colour = ConstantTexture::from_rgb(vec3(0.73, 0.73, 0.73));
     let red = Box::new(Lambertian::new(Box::new(ConstantTexture::from_rgb(vec3(0.65, 0.05, 0.05))))) as Box<dyn Material>;
-    let white0 = Box::new(Lambertian::new(Box::new(white_colour))) as Box<dyn Material>;
-    let white1 = Box::new(Lambertian::new(Box::new(white_colour))) as Box<dyn Material>;
-    let white2 = Box::new(Lambertian::new(Box::new(white_colour))) as Box<dyn Material>;
     let green = Box::new(Lambertian::new(Box::new(ConstantTexture::from_rgb(vec3(0.12, 0.45, 0.15))))) as Box<dyn Material>;
     let light = Box::new(DiffuseLight::new(Box::new(ConstantTexture::from_rgb(vec3(15.0, 15.0, 15.0))))) as Box<dyn Material>;
+    let diffuse_light_mat_generator = || -> Box<dyn Material> { 
+        Box::new(Lambertian::new(Box::new(ConstantTexture::from_rgb(vec3(0.73, 0.73, 0.73))))) 
+    };
     
     let hittables: Vec<Box<dyn Hittable>> = vec![
         Box::new(FlipNormals::new(YZRectangle::new(0.0, 555.0, 0.0, 555.0, 555.0, green))),
         Box::new(YZRectangle::new(0.0, 555.0, 0.0, 555.0, 0.0, red)),
         Box::new(XZRectangle::new(213.0, 343.0, 227.0, 332.0, 554.0, light)),
-        Box::new(XZRectangle::new(0.0, 555.0, 0.0, 555.0, 0.0, white0)),
-        Box::new(FlipNormals::new(XYRectangle::new(0.0, 555.0, 0.0, 555.0, 555.0, white1))),
-        Box::new(FlipNormals::new(XZRectangle::new(0.0, 555.0, 0.0, 555.0, 555.0, white2))),
-        // Box::new(Parallelepiped::new(Point3::new(130.0, 0.0, 65.0), Point3::new(295.0, 165.0, 230.0), white_colour)),
-        // Box::new(Parallelepiped::new(Point3::new(265.0, 0.0, 295.0), Point3::new(430.0, 330.0, 460.0), white_colour)),
+        Box::new(XZRectangle::new(0.0, 555.0, 0.0, 555.0, 0.0, diffuse_light_mat_generator())),
+        Box::new(FlipNormals::new(XYRectangle::new(0.0, 555.0, 0.0, 555.0, 555.0, diffuse_light_mat_generator()))),
+        Box::new(FlipNormals::new(XZRectangle::new(0.0, 555.0, 0.0, 555.0, 555.0, diffuse_light_mat_generator()))),
+        Box::new(Parallelepiped::new(&Point3::new(130.0, 0.0, 65.0), &Point3::new(295.0, 165.0, 230.0), diffuse_light_mat_generator)),
+        Box::new(Parallelepiped::new(&Point3::new(265.0, 0.0, 295.0), &Point3::new(430.0, 330.0, 460.0), diffuse_light_mat_generator)),
     ];
 
     (Scene::new(hittables, time_interval), camera(camera_aspect))

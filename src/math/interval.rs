@@ -17,6 +17,10 @@ impl<T: Copy + Clone + PartialOrd> Interval<T> {
         }
     }
     
+    pub fn with_max(&self, max: T) -> Option<Self> {
+        Interval::new(self.min, max)
+    }
+
     pub fn overlap_with(&self, other: &Interval<T>) -> Option<Self> {
         let min = if self.min > other.min { self.min } else { other.min };
         let max = if self.max < other.max { self.max } else { other.max };
