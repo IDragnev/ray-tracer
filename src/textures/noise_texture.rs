@@ -19,13 +19,12 @@ pub struct NoiseTexture {
 
 impl NoiseTexture {
     pub fn new(scale: f32) -> Self {
-        static mut PERLIN_DATA: Option<PerlinData> = None;
-        unsafe {
-            Self {
-                //possible data races
-                data : PERLIN_DATA.get_or_insert_with(|| PerlinData::new()),
-                scale,
-            }
+        lazy_static! {
+            static ref PERLIN_DATA: PerlinData = PerlinData::new();
+        }
+        Self {
+            data: &PERLIN_DATA,
+            scale,
         }
     }
 }
