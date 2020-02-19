@@ -75,3 +75,29 @@ impl Hittable for YZRectangle {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::materials::Dielectric;
+
+    #[test]
+    fn ray_through_the_rectangle_hits_it() {
+        let material = Box::new(Dielectric::new(1.5));
+        let rect = YZRectangle::new(0.0, 10.0, 0.0, 10.0, 4.0, material);
+        let hit_interval = Interval::new(0.0, std::f32::MAX).unwrap();
+        let ray = Ray::new(Point3::new(-2.0, 2.0, 2.0), math::vec3(2.0, 2.0, 2.0), 1.0);
+
+        assert!(rect.hit(&ray, &hit_interval).is_some());
+    }
+    
+    #[test]
+    fn ray_outside_the_rectangle_does_not_hit_it() {
+        let material = Box::new(Dielectric::new(1.5));
+        let rect = YZRectangle::new(0.0, 10.0, 0.0, 10.0, 4.0, material);
+        let hit_interval = Interval::new(0.0, std::f32::MAX).unwrap();
+        let ray = Ray::new(Point3::new(-2.0, 2.0, 2.0), math::vec3(2.0,-2.0, 2.0), 1.0);
+
+        assert!(rect.hit(&ray, &hit_interval).is_none());
+    }
+}

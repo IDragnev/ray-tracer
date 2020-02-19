@@ -75,3 +75,29 @@ impl Hittable for XYRectangle {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::materials::Dielectric;
+
+    #[test]
+    fn ray_through_the_rectangle_hits_it() {
+        let material = Box::new(Dielectric::new(1.5));
+        let rect = XYRectangle::new(0.0, 10.0, 0.0, 10.0, -4.0, material);
+        let hit_interval = Interval::new(0.0, 100.0).unwrap();
+        let ray = Ray::new(Point3::new(1.0, -3.0, 0.0), math::vec3(1.0, 3.0, -1.0), 1.0);
+
+        assert!(rect.hit(&ray, &hit_interval).is_some());
+    }
+    
+    #[test]
+    fn ray_outside_the_rectangle_does_not_hit_it() {
+        let material = Box::new(Dielectric::new(1.5));
+        let rect = XYRectangle::new(0.0, 10.0, 0.0, 10.0, -4.0, material);
+        let hit_interval = Interval::new(0.0, 100.0).unwrap();
+        let ray = Ray::new(Point3::new(1.0, -3.0, 0.0), math::vec3(1.0, -3.0, -1.0), 1.0);
+
+        assert!(rect.hit(&ray, &hit_interval).is_none());
+    }
+}

@@ -1,12 +1,10 @@
 mod constant_texture;
 mod checker_texture;
 mod noise_texture;
-mod image_texture;
 
 pub use constant_texture::ConstantTexture;
 pub use checker_texture::CheckerTexture;
 pub use noise_texture::NoiseTexture;
-pub use image_texture::ImageTexture;
 
 use crate::{
     math::{
