@@ -11,6 +11,7 @@ mod core;
 mod aabb;
 mod bvh;
 mod textures;
+mod transformations;
 mod example_scenes;
 
 use math::{
