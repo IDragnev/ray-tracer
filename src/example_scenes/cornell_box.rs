@@ -30,6 +30,10 @@ use crate::{
     textures::{
         ConstantTexture,
     },
+    transformations::{
+        Translation,
+        YRotation,
+    },
 };
 
 pub fn scene(camera_aspect: f32, time_interval: &Interval<f32>) -> (Scene, Camera) {
@@ -47,8 +51,20 @@ pub fn scene(camera_aspect: f32, time_interval: &Interval<f32>) -> (Scene, Camer
         Box::new(XZRectangle::new(0.0, 555.0, 0.0, 555.0, 0.0, diffuse_light_mat_generator())),
         Box::new(FlipNormals::new(XYRectangle::new(0.0, 555.0, 0.0, 555.0, 555.0, diffuse_light_mat_generator()))),
         Box::new(FlipNormals::new(XZRectangle::new(0.0, 555.0, 0.0, 555.0, 555.0, diffuse_light_mat_generator()))),
-        Box::new(Parallelepiped::new(&Point3::new(130.0, 0.0, 65.0), &Point3::new(295.0, 165.0, 230.0), diffuse_light_mat_generator)),
-        Box::new(Parallelepiped::new(&Point3::new(265.0, 0.0, 295.0), &Point3::new(430.0, 330.0, 460.0), diffuse_light_mat_generator)),
+        Box::new(Translation::on(
+            Box::new(YRotation::from_degrees(
+                Box::new(Parallelepiped::new(&Point3::new(0.0, 0.0, 0.0), &Point3::new(165.0, 165.0, 165.0), diffuse_light_mat_generator)),
+                -18.0
+            )),
+            vec3(130.0, 0.0, 65.0)
+        )),
+        Box::new(Translation::on(
+            Box::new(YRotation::from_degrees(
+                Box::new(Parallelepiped::new(&Point3::new(0.0, 0.0, 0.0), &Point3::new(165.0, 330.0, 165.0), diffuse_light_mat_generator)),
+                15.0
+            )),
+            vec3(265.0, 0.0, 295.0)
+        )),
     ];
 
     (Scene::new(hittables, time_interval), camera(camera_aspect))

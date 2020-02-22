@@ -62,7 +62,7 @@ fn main() {
     let pixel_samples_count = 100;
     let aspect = nx as f32 / ny as f32;
     let time_interval = Interval::new(0.0, 1.0).unwrap();
-    let (scene, camera) = example_scenes::simple_light::scene(aspect, &time_interval);
+    let (scene, camera) = example_scenes::cornell_box::scene(aspect, &time_interval);
     let (tmin, tmax) = (time_interval.min(), time_interval.max());
     println!("P3\n{} {}\n255", nx, ny);
     for y in (0..ny).rev() {
