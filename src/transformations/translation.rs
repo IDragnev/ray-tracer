@@ -29,7 +29,7 @@ impl Translation {
 
 impl Hittable for Translation {
     fn hit(&self, ray: &Ray, hit_interval: &Interval<f32>) -> Option<HitRecord> {
-        let moved_ray = Ray::new(ray.origin - self.offset, ray.direction - self.offset, ray.time);
+        let moved_ray = Ray::new(ray.origin - self.offset, ray.direction, ray.time);
         self.hittable.hit(&moved_ray, hit_interval)
         .map(|hit_rec| {
             HitRecord {
@@ -75,8 +75,8 @@ mod tests {
         let rect = XYRectangle::new(-5.0, 5.0, 0.0, 10.0, -4.0, material);
         let offset = math::vec3(5.0, 0.0, 0.0);
         let translated_rect = Translation::on(Box::new(rect), offset);
-        let hit_interval = Interval::new(0.0, 100.0).unwrap();
-        let ray = Ray::new(Point3::new(6.0, -3.0, 0.0), math::vec3(6.0, 3.0, -4.0), 1.0);
+        let hit_interval = Interval::new(0.0, std::f32::MAX).unwrap();
+        let ray = Ray::new(Point3::new(6.0, -3.0, 0.0), math::vec3(0.0, 1.0, -1.0), 1.0);
         
         assert!(translated_rect.hit(&ray, &hit_interval).is_some());
     }
@@ -87,8 +87,8 @@ mod tests {
         let rect = XYRectangle::new(-5.0, 5.0, 0.0, 10.0, -4.0, material);
         let offset = math::vec3(5.0, 0.0, 0.0);
         let translated_rect = Translation::on(Box::new(rect), offset);
-        let hit_interval = Interval::new(0.0, 100.0).unwrap();
-        let ray = Ray::new(Point3::new(-1.0, -3.0, 0.0), math::vec3(-1.0, 3.0, -4.0), 1.0);
+        let hit_interval = Interval::new(0.0, std::f32::MAX).unwrap();
+        let ray = Ray::new(Point3::new(6.0, -3.0, 0.0), math::vec3(-10.0, 1.0, -1.0), 1.0);
         
         assert!(translated_rect.hit(&ray, &hit_interval).is_none());
     }
