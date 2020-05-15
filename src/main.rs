@@ -13,6 +13,7 @@ mod bvh;
 mod textures;
 mod transformations;
 mod example_scenes;
+mod volumes;
 
 use math::{
     Vec3, 
