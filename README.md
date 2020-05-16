@@ -9,9 +9,13 @@ There are three examples scenes which are used for debugging:
   - Scene of many randomly generates spheres (--scene=random-spheres)  
   - Scene with marble spheres and an area light source (--scene=simple-light)
 
-Example usage:  
+Example:  
 ``
 $ ray-tracer out.txt --height=600 --width=600 --samples=64 --scene=simple-light
 ``  
+  
+Which produces:  
+  
+![Image description](https://github.com/IDragnev/ray-tracer/blob/dev/produced_images/simple-light.png)  
   
 Run ``$ ray-tracer --help`` for more information.
