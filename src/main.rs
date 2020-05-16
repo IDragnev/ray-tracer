@@ -70,29 +70,29 @@ fn to_colour(ray: &Ray, scene: &Scene, depth: i32) -> Colour {
     }
 }
 
-fn run(file: impl Write, scene_name: &str, nx :i32, ny: i32, samples_per_pixel: i32) -> Result<(), String> {
-    let aspect = nx as f32 / ny as f32;
+fn run(file: impl Write, args: cmd::Args) -> Result<(), String> {
+    let cmd::Args{ width, height, pixel_samples, .. } = args;
+    let aspect = width as f32 / height as f32;
     let time_interval = Interval::new(0.0, 1.0).unwrap();
-    let (scene, camera) = make_scene(scene_name, aspect, &time_interval)?;
+    let (scene, camera) = make_scene(&args.scene, aspect, &time_interval)?;
     let (tmin, tmax) = (time_interval.min(), time_interval.max());
     
     let mut file = BufWriter::new(file);
-    let _ = writeln!(file, "P3\n{} {}\n255", nx, ny);
-    for y in (0..ny).rev() {
-        for x in 0..nx {
+    let _ = writeln!(file, "P3\n{} {}\n255", width, height);
+    for y in (0..height).rev() {
+        for x in 0..width {
             let mut colour = Colour::new(0.0, 0.0, 0.0);
-            for _ in 0..samples_per_pixel {
-                let u = (x as f32 + random_float_from_0_to_1()) / nx as f32;
-                let v = (y as f32 + random_float_from_0_to_1()) / ny as f32;
+            for _ in 0..pixel_samples {
+                let u = (x as f32 + random_float_from_0_to_1()) / width as f32;
+                let v = (y as f32 + random_float_from_0_to_1()) / height as f32;
                 let time = tmin + random_float_from_0_to_1()*(tmax - tmin);
                 let ray = camera.make_ray((u, v), time);
                 colour += to_colour(&ray, &scene, 0);
             }
-            let colour = (colour / samples_per_pixel as f32).map(|c| c.sqrt());
-            let red   = (255.99 * colour[0]) as i32;
-            let green = (255.99 * colour[1]) as i32;
-            let blue  = (255.99 * colour[2]) as i32;
-            let _ = writeln!(file, "{} {} {}", red, green, blue);
+            let colour = (colour / pixel_samples as f32)
+                .map(|c| c.sqrt())
+                .map(|c| (255.99 * c) as i32);
+            let _ = writeln!(file, "{} {} {}", colour[0], colour[1], colour[2]);
         }
     }
     file.flush().unwrap();
@@ -115,8 +115,8 @@ fn main() {
     
     match File::create(&output) {
         Ok(file) => {
-            if let Err(e) = run(file, &args.scene, args.width, args.height, args.pixel_samples) {
-                panic!("Error! {}", e);
+            if let Err(e) = run(file, args) {
+                panic!("Error! {}", e)
             }
         },
         Err(e) => panic!("Error! Couldn't create {}: {}", output.display(), e.to_string()),
