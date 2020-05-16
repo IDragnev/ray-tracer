@@ -43,32 +43,21 @@ use std::{
     path::Path,
 };
 
-type Colour = Vec3;
-
-fn to_colour(ray: &Ray, scene: &Scene, depth: i32) -> Colour {
-    use materials::ScatterResult;
-
-    let interval = Interval::new(0.001, std::f32::MAX).unwrap();
-    if let Some(hit_record) = scene.hit(ray, &interval) {
-        let scatter_result = hit_record.material.scatter(ray, &hit_record);
-        let emitted = hit_record.material.emitted(&hit_record.uv, &hit_record.hit_point);
-        if depth < 50 && scatter_result.is_some() {
-            let ScatterResult{ scattered_ray, attenuation } = scatter_result.unwrap();
-            let colour = to_colour(&scattered_ray, scene, depth + 1);
-            Colour::new(
-             attenuation[0] * colour[0],
-             attenuation[1] * colour[1],
-             attenuation[2] * colour[2])
-            + emitted
-        }
-        else {
-            emitted
-        }
-    }
-    else {
-        Colour::new(0.0, 0.0, 0.0)
-    }
+fn main() {
+    let args = cmd::parse();
+    let output = Path::new(&args.output);
+    
+    match File::create(&output) {
+        Ok(file) => {
+            if let Err(e) = run(file, args) {
+                panic!("Error! {}", e)
+            }
+        },
+        Err(e) => panic!("Error! Couldn't create {}: {}", output.display(), e.to_string()),
+    };
 }
+
+type Colour = Vec3;
 
 fn run(file: impl Write, args: cmd::Args) -> Result<(), String> {
     let cmd::Args{ width, height, pixel_samples, .. } = args;
@@ -109,16 +98,27 @@ fn make_scene(name: &str, aspect: f32, time_interval: &Interval<f32>) -> Result<
     }
 }
 
-fn main() {
-    let args = cmd::parse();
-    let output = Path::new(&args.output);
-    
-    match File::create(&output) {
-        Ok(file) => {
-            if let Err(e) = run(file, args) {
-                panic!("Error! {}", e)
-            }
-        },
-        Err(e) => panic!("Error! Couldn't create {}: {}", output.display(), e.to_string()),
-    };
+fn to_colour(ray: &Ray, scene: &Scene, depth: i32) -> Colour {
+    use materials::ScatterResult;
+
+    let interval = Interval::new(0.001, std::f32::MAX).unwrap();
+    if let Some(hit_record) = scene.hit(ray, &interval) {
+        let scatter_result = hit_record.material.scatter(ray, &hit_record);
+        let emitted = hit_record.material.emitted(&hit_record.uv, &hit_record.hit_point);
+        if depth < 50 && scatter_result.is_some() {
+            let ScatterResult{ scattered_ray, attenuation } = scatter_result.unwrap();
+            let colour = to_colour(&scattered_ray, scene, depth + 1);
+            Colour::new(
+             attenuation[0] * colour[0],
+             attenuation[1] * colour[1],
+             attenuation[2] * colour[2])
+            + emitted
+        }
+        else {
+            emitted
+        }
+    }
+    else {
+        Colour::new(0.0, 0.0, 0.0)
+    }
 }
