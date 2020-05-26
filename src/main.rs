@@ -1,7 +1,3 @@
-#[macro_use]
-extern crate lazy_static;
-extern crate clap;
-
 mod cmd;
 mod random;
 mod math;

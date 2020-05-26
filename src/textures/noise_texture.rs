@@ -11,6 +11,8 @@ use crate::{
     random,
 };
 
+use lazy_static::lazy_static;
+
 #[derive(Copy, Clone)]
 pub struct NoiseTexture {
     data: &'static PerlinData,
